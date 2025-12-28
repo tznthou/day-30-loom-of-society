@@ -27,14 +27,21 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
 
 app.use(cors({
   origin: (origin, callback) => {
-    // 開發環境允許無 origin（curl、Postman）
-    if (!origin && !IS_PRODUCTION) {
+    // 允許無 origin 的請求（curl、Postman、健康檢查、直接訪問）
+    // 這是安全的，因為沒有 Origin 的請求無法在瀏覽器發送 credentials
+    if (!origin) {
       return callback(null, true)
     }
     if (allowedOrigins.includes(origin)) {
       return callback(null, true)
     }
-    callback(new Error('Not allowed by CORS'))
+    // 生產環境拒絕未授權的 cross-origin 請求
+    if (IS_PRODUCTION) {
+      console.warn(`CORS blocked origin: ${origin}`)
+      return callback(null, false) // 返回 false 而不是 Error，避免 500
+    }
+    // 開發環境允許所有來源
+    callback(null, true)
   }
 }))
 
