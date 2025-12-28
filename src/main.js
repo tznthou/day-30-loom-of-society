@@ -4,6 +4,7 @@ import { RIBBON_CONFIG, mockSentiment, VISUAL_CONFIG } from './config.js'
 import { createRibbon, updateRibbon, createBackgroundRibbons, updateBackgroundRibbons } from './ribbon.js'
 import { createRibbonParticles, updateParticles, createStarDust, updateStarDust } from './particles.js'
 import { createPostProcessing, updateBloomParams } from './bloom.js'
+import { startSentimentPolling } from './api.js'
 
 // ============================================
 // 全域變數
@@ -15,6 +16,9 @@ let particles = []
 let backgroundRibbons
 let starDust
 let startTime
+
+// 當前情緒數據（會被即時更新）
+let currentSentiment = { ...mockSentiment }
 
 // ============================================
 // 初始化
@@ -67,8 +71,42 @@ async function init() {
   // 隱藏 loading
   hideLoading()
 
+  // 開始即時數據更新（每 30 秒）
+  startSentimentPolling((sentiment) => {
+    currentSentiment = sentiment
+    updateSentimentDisplay(sentiment)
+    updateRibbonSentiments(sentiment)
+  }, 30000)
+
   // 開始動畫
   animate()
+}
+
+// ============================================
+// 更新情緒數據到絲帶
+// ============================================
+function updateRibbonSentiments(sentiment) {
+  const keys = ['tech', 'finance', 'society']
+  ribbons.forEach((ribbon, index) => {
+    const key = keys[index]
+    if (sentiment[key]) {
+      ribbon.userData.sentiment = sentiment[key]
+    }
+  })
+}
+
+// ============================================
+// 更新 HUD 顯示
+// ============================================
+function updateSentimentDisplay(sentiment) {
+  const avgTension = (sentiment.tech.tension + sentiment.finance.tension + sentiment.society.tension) / 3
+  const avgBuoyancy = (sentiment.tech.buoyancy + sentiment.finance.buoyancy + sentiment.society.buoyancy) / 3
+
+  const tensionEl = document.getElementById('hud-tension')
+  const buoyancyEl = document.getElementById('hud-buoyancy')
+
+  if (tensionEl) tensionEl.textContent = avgTension.toFixed(2)
+  if (buoyancyEl) buoyancyEl.textContent = avgBuoyancy.toFixed(2)
 }
 
 // ============================================
@@ -128,7 +166,7 @@ function animate() {
   particles.forEach(p => updateParticles(p, time))
 
   // 動態 Bloom
-  updateBloomParams(postProcessing.bloomPass, mockSentiment)
+  updateBloomParams(postProcessing.bloomPass, currentSentiment)
 
   // 渲染（使用後處理）
   postProcessing.composer.render()
