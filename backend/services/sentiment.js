@@ -22,8 +22,13 @@ const POSITIVE_KEYWORDS = {
     '降息', '寬鬆', '資金', '外資', '法人'
   ],
   society: [
+    // 中文
     '希望', '改善', '進步', '成功', '突破', '合作', '支持', '幫助',
-    '感謝', '開心', '期待', '祝福', '正向', '溫暖', '團結', '共好'
+    '感謝', '開心', '期待', '祝福', '正向', '溫暖', '團結', '共好',
+    // 英文 (Reddit)
+    'hope', 'peace', 'progress', 'success', 'unity', 'support', 'helped',
+    'celebrate', 'victory', 'breakthrough', 'happy', 'joy', 'love',
+    'hero', 'saved', 'rescued', 'recovered', 'uplifting', 'inspiring'
   ]
 }
 
@@ -47,8 +52,13 @@ const NEGATIVE_KEYWORDS = {
     '升息', '緊縮', '通膨', '違約', '倒閉'
   ],
   society: [
+    // 中文
     '擔憂', '失望', '憤怒', '抗議', '衝突', '危機', '問題', '災難',
-    '悲傷', '恐慌', '焦慮', '不滿', '批評', '爭議', '對立', '分裂'
+    '悲傷', '恐慌', '焦慮', '不滿', '批評', '爭議', '對立', '分裂',
+    // 英文 (Reddit)
+    'war', 'death', 'killed', 'died', 'attack', 'crisis', 'disaster',
+    'tragedy', 'violence', 'conflict', 'protest', 'riot', 'shooting',
+    'crash', 'collapse', 'fear', 'threat', 'danger', 'warning', 'emergency'
   ]
 }
 

@@ -8,6 +8,7 @@ import cors from 'cors'
 import { fetchMarketIndex, marketToSentiment } from './services/twse.js'
 import { analyzeText } from './services/sentiment.js'
 import { analyzeHackerNews } from './services/hackernews.js'
+import { analyzeReddit } from './services/reddit.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -35,9 +36,10 @@ async function getCachedSentiment() {
   }
 
   // 並行抓取所有數據源
-  const [marketData, techSentiment] = await Promise.all([
+  const [marketData, techSentiment, societySentiment] = await Promise.all([
     fetchMarketIndex(),
-    analyzeHackerNews()
+    analyzeHackerNews(),
+    analyzeReddit()
   ])
 
   const financeSentiment = marketToSentiment(marketData)
@@ -51,12 +53,7 @@ async function getCachedSentiment() {
         ...financeSentiment,
         source: 'twse'
       },
-      society: {
-        tension: 0.3 + Math.random() * 0.2,
-        buoyancy: 0.6 + Math.random() * 0.2,
-        activity: 0.3 + Math.random() * 0.2,
-        source: 'mock'  // 之後換成新聞/PTT
-      }
+      society: societySentiment
     }
   }
 
