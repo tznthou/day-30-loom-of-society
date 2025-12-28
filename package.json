@@ -19,11 +19,9 @@
   ],
   "author": "tznthou",
   "license": "CC-BY-NC-SA-4.0",
-  "devDependencies": {
-    "vite": "^6.0.0"
-  },
   "dependencies": {
     "three": "^0.170.0",
-    "simplex-noise": "^4.0.3"
+    "simplex-noise": "^4.0.3",
+    "vite": "^6.0.0"
   }
 }
