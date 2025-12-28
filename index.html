@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The Loom of Society - 社會織機，將社會情緒編織成數位絲綢的生成藝術裝置">
+  <title>The Loom of Society | 社會織機</title>
+
+  <!-- Import Map for CDN modules -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://esm.sh/three@0.170.0",
+      "three/addons/": "https://esm.sh/three@0.170.0/addons/",
+      "simplex-noise": "https://esm.sh/simplex-noise@4.0.3"
+    }
+  }
+  </script>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+TC:wght@300;400&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #020208;
+    }
+
+    /* ==========================================
+       前導頁面
+       ========================================== */
+    #intro {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #020208;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      transition: opacity 1.5s ease-out, transform 1.5s ease-out;
+    }
+
+    #intro.hidden {
+      opacity: 0;
+      transform: scale(1.05);
+      pointer-events: none;
+    }
+
+    /* 背景漸層光暈 */
+    #intro::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 120vmax;
+      height: 120vmax;
+      background: radial-gradient(
+        ellipse at center,
+        rgba(80, 60, 120, 0.15) 0%,
+        rgba(40, 80, 100, 0.08) 30%,
+        rgba(2, 2, 8, 0) 70%
+      );
+      pointer-events: none;
+    }
+
+    /* 浮動光點動畫 */
+    #intro::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image:
+        radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 80% 20%, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 40% 70%, rgba(255,255,255,0.25), transparent),
+        radial-gradient(1px 1px at 70% 60%, rgba(255,255,255,0.15), transparent),
+        radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.2), transparent);
+      animation: twinkle 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    .intro-content {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      text-align: center;
+    }
+
+    /* 英文標題 */
+    .intro-title-en {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 6vw, 3.5rem);
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 0.3em;
+      text-transform: uppercase;
+    }
+
+    /* 中文標題 */
+    .intro-title-zh {
+      font-family: 'Noto Serif TC', serif;
+      font-size: clamp(1.2rem, 3vw, 1.8rem);
+      font-weight: 300;
+      letter-spacing: 0.3em;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 3rem;
+    }
+
+    /* 分隔線 */
+    .intro-divider {
+      width: 60px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      margin: 0 auto 2.5rem;
+    }
+
+    /* 說明文字 */
+    .intro-description {
+      font-family: 'Noto Serif TC', serif;
+      font-size: clamp(0.9rem, 2vw, 1.05rem);
+      font-weight: 300;
+      line-height: 2;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 1.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .intro-description-en {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(0.85rem, 1.8vw, 1rem);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.8;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 3rem;
+    }
+
+    /* 圖例 */
+    .intro-legend {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      margin-bottom: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      box-shadow: 0 0 10px currentColor;
+    }
+
+    .legend-color.tech {
+      background: #3db8d4;
+      color: #3db8d4;
+    }
+    .legend-color.finance {
+      background: #e6a030;
+      color: #e6a030;
+    }
+    .legend-color.society {
+      background: #d47090;
+      color: #d47090;
+    }
+
+    .legend-text {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.1em;
+    }
+
+    /* 進入按鈕 */
+    .intro-enter {
+      position: relative;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.9rem;
+      font-weight: 400;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 1rem 2.5rem;
+      cursor: pointer;
+      transition: all 0.4s ease;
+      overflow: hidden;
+    }
+
+    .intro-enter::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+      transition: left 0.5s ease;
+    }
+
+    .intro-enter:hover {
+      color: rgba(255, 255, 255, 0.95);
+      border-color: rgba(255, 255, 255, 0.5);
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+    }
+
+    .intro-enter:hover::before {
+      left: 100%;
+    }
+
+    /* 底部提示 */
+    .intro-hint {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.25);
+      letter-spacing: 0.1em;
+    }
+
+    /* ==========================================
+       主畫布
+       ========================================== */
+    #canvas-container {
+      width: 100%;
+      height: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    canvas {
+      display: block;
+    }
+
+    /* Loading screen */
+    #loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #020208;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      transition: opacity 1s ease-out;
+    }
+
+    #loading.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #loading-text {
+      color: rgba(255, 255, 255, 0.6);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    /* Minimal HUD */
+    #hud {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      color: rgba(255, 255, 255, 0.35);
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 2s ease;
+    }
+
+    #hud.visible {
+      opacity: 1;
+    }
+
+    .hud-line {
+      margin-bottom: 0.3em;
+    }
+
+    /* 操作提示 */
+    #controls-hint {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      color: rgba(255, 255, 255, 0.25);
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      text-align: right;
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0;
+      transition: opacity 2s ease;
+    }
+
+    #controls-hint.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <!-- 前導頁面 -->
+  <div id="intro">
+    <div class="intro-content">
+      <h1 class="intro-title-en">The Loom of Society</h1>
+      <h2 class="intro-title-zh">社會織機</h2>
+
+      <div class="intro-divider"></div>
+
+      <p class="intro-description">
+        當科技的脈動、金融的起伏、與社會的情緒交織在一起，<br>
+        它們便化為光的絲帶，在虛空中永恆地編織、呼吸、共鳴。
+      </p>
+
+      <p class="intro-description-en">
+        Technology, finance, and society — three invisible currents that shape our world.<br>
+        Here, they become light, woven into an endless dance of digital silk.
+      </p>
+
+      <div class="intro-legend">
+        <div class="legend-item">
+          <span class="legend-color tech"></span>
+          <span class="legend-text">科技 Tech</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color finance"></span>
+          <span class="legend-text">金融 Finance</span>
+        </div>
+        <div class="legend-item">
+          <span class="legend-color society"></span>
+          <span class="legend-text">社會 Society</span>
+        </div>
+      </div>
+
+      <button class="intro-enter" id="enter-btn">
+        Enter the Loom
+      </button>
+    </div>
+
+    <div class="intro-hint">
+      Best experienced in fullscreen with sound off
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div id="loading">
+    <span id="loading-text">Weaving...</span>
+  </div>
+
+  <!-- 主畫布 -->
+  <div id="canvas-container"></div>
+
+  <!-- HUD -->
+  <div id="hud">
+    <div class="hud-line">TENSION <span id="hud-tension">0.00</span></div>
+    <div class="hud-line">BUOYANCY <span id="hud-buoyancy">0.00</span></div>
+  </div>
+
+  <div id="controls-hint">
+    drag to rotate · scroll to zoom
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

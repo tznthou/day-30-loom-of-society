@@ -1,0 +1,26 @@
+{
+  "name": "day-30-loom-of-society",
+  "version": "1.0.0",
+  "description": "The Loom of Society - A generative art installation visualizing social sentiment as digital silk ribbons",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "three.js",
+    "generative-art",
+    "data-visualization",
+    "webgl"
+  ],
+  "author": "tznthou",
+  "license": "CC-BY-NC-SA-4.0",
+  "devDependencies": {
+    "vite": "^6.0.0"
+  },
+  "dependencies": {
+    "three": "^0.170.0",
+    "simplex-noise": "^4.0.3"
+  }
+}
