@@ -251,6 +251,18 @@ The loom is one of humanity's oldest machines. The interweaving of warp and weft
 
 In this digital age, we are constantly "weaving" — posting, commenting, trading, voting. These actions seem small, yet together they form the texture of society. This loom attempts to make that process visible.
 
+### Why These Three Sources?
+
+Choosing Hacker News, Taiwan Stock Index, and Reddit was not a random decision. These three sources correspond precisely to the three pillars of social data:
+
+| Source | Dimension | Significance |
+|--------|-----------|--------------|
+| **Hacker News** | Technology | The cutting edge of the tech community. Discussions here often foreshadow future trends — new languages, new frameworks, new paradigms. When HN's front page is flooded with layoff news, you know tech is in a winter. |
+| **Taiwan Stock Index** | Finance | The most direct economic thermometer. The stock market is an amplifier of crowd psychology — greed and fear are laid bare here. Price movements directly reflect collective optimism or pessimism. |
+| **Reddit** | Society | The largest public forum of our time. From politics to daily life, from serious to absurd, this is a microcosm of real public discourse. Unlike algorithm-curated social media, Reddit discussions are closer to genuine public sentiment. |
+
+These three ribbons represent three different "voices": the rational discourse of tech elites, the greed and fear of capital markets, and the joys and sorrows of the general public. When they interweave, they form the complete face of society.
+
 ### On "Emotion"
 
 Emotion is the hardest thing to quantify. Unlike temperature or price, it has no precise number.
