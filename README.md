@@ -102,6 +102,31 @@
 
 ---
 
+## 安全性與程式碼品質
+
+本專案已通過全面的程式碼審查，修復以下關鍵問題：
+
+| 優先級 | 修復項目 | 說明 |
+|--------|---------|------|
+| 🔴 Critical | 數值安全 | 使用 `safeNormalize` 防止 NaN 傳入 Three.js |
+| 🔴 Critical | ReDOS 防護 | 預編譯 RegExp 模式，避免正則表達式阻斷攻擊 |
+| 🔴 Critical | API Timeout | 外部 API 請求 5 秒超時，防止無限等待 |
+| 🔴 Critical | 輸入驗證 | 所有資料來源加入型別檢查與 fallback |
+| 🟠 High | Memory Leak | EffectComposer 正確 dispose，避免記憶體洩漏 |
+| 🟠 High | Rate Limiting | API 限流 100 req/15min，防止濫用 |
+| 🟠 High | Caching | 5 分鐘本地快取，減少外部 API 請求 |
+| 🟡 Medium | CSS 變數 | `:root` 變數系統，提升可維護性 |
+| 🟢 Low | JSDoc | 完整型別定義文檔 |
+| 🟢 Low | 單元測試 | 16 個測試案例覆蓋情緒分析模組 |
+
+### 執行測試
+
+```bash
+cd backend && npm test
+```
+
+---
+
 ## 專案結構
 
 ```
