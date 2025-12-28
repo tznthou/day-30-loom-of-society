@@ -208,6 +208,29 @@ NODE_ENV=production
 
 > ⚠️ **Important**: `ALLOWED_ORIGINS` must be set correctly, otherwise the frontend cannot access the API (CORS error).
 
+### Zeabur Monorepo Deployment
+
+This project uses a frontend-backend separation architecture. When deploying to Zeabur, create **two services**:
+
+| Service | Root Directory | Description |
+|---------|----------------|-------------|
+| Frontend | `/` (root) | Vite static site |
+| Backend | `backend` | Express API server |
+
+### Common Deployment Issues
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| `vite: not found` | vite was in devDependencies, skipped in production | Moved to dependencies |
+| CORS 500 Error | Direct API access (no Origin header) rejected | Fixed: allow requests without Origin |
+| Frontend connects to localhost | Vite env vars are build-time, not runtime | Hardcoded fallback URL |
+
+### Environment Variables Summary
+
+- **Backend required**: `PORT`, `NODE_ENV`, `ALLOWED_ORIGINS`
+- **Frontend**: None needed (API URL hardcoded in `src/api.js`)
+- **Zeabur PORT**: Use `${WEB_PORT}` for platform auto-assignment
+
 ---
 
 ## Interactions

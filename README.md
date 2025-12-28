@@ -208,6 +208,29 @@ NODE_ENV=production
 
 > ⚠️ **注意**：`ALLOWED_ORIGINS` 必須設定正確，否則前端無法存取 API（CORS 錯誤）。
 
+### Zeabur Monorepo 部署
+
+本專案為前後端分離架構，在 Zeabur 部署時需建立**兩個服務**：
+
+| 服務 | Root Directory | 說明 |
+|------|----------------|------|
+| Frontend | `/`（根目錄） | Vite 靜態網站 |
+| Backend | `backend` | Express API 伺服器 |
+
+### 部署常見問題
+
+| 問題 | 原因 | 解法 |
+|------|------|------|
+| `vite: not found` | vite 原在 devDependencies，生產環境跳過安裝 | 已移至 dependencies |
+| CORS 500 Error | 直接訪問 API（無 Origin header）被拒絕 | 已修復：允許無 Origin 請求 |
+| 前端連 localhost | Vite 環境變數是 build-time，非 runtime | 已 hardcode fallback URL |
+
+### 環境變數重點
+
+- **後端必設**：`PORT`、`NODE_ENV`、`ALLOWED_ORIGINS`
+- **前端不需要**：API URL 已 hardcode 在 `src/api.js`
+- **Zeabur PORT**：使用 `${WEB_PORT}` 讓平台自動分配
+
 ---
 
 ## 互動方式
