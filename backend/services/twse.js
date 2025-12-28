@@ -3,6 +3,8 @@
  * 抓取大盤指數、成交量等數據
  */
 
+import { fetchWithTimeout, safeNormalize, safeParseFloat } from './utils.js'
+
 // TWSE API 端點
 const TWSE_API = {
   // 大盤即時資訊
@@ -11,18 +13,32 @@ const TWSE_API = {
   daily: 'https://www.twse.com.tw/rwd/zh/TAIEX/MI_5MINS_INDEX'
 }
 
+// H06: timeout 設定
+const TIMEOUT = 5000
+
+// H05: 改善 User-Agent（完整 Chrome UA，避免被識別為爬蟲）
+const TWSE_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+
 /**
  * 抓取大盤即時數據
  * @returns {Promise<Object>} 大盤數據
  */
 export async function fetchMarketIndex() {
   try {
-    const response = await fetch(TWSE_API.index, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
-        'Accept': 'application/json'
-      }
-    })
+    // H06: 加 timeout
+    const response = await fetchWithTimeout(
+      TWSE_API.index,
+      {
+        headers: {
+          // H05: 改善 User-Agent
+          'User-Agent': TWSE_USER_AGENT,
+          'Accept': 'application/json',
+          'Accept-Language': 'zh-TW,zh;q=0.9,en;q=0.8',
+          'Referer': 'https://www.twse.com.tw/'
+        }
+      },
+      TIMEOUT
+    )
 
     if (!response.ok) {
       throw new Error(`TWSE API error: ${response.status}`)
@@ -37,26 +53,29 @@ export async function fetchMarketIndex() {
 
     const info = data.msgArray[0]
 
-    // 解析數據
-    // z: 當前價格, y: 昨收, v: 成交量, o: 開盤
-    const currentPrice = parseFloat(info.z) || parseFloat(info.y)
-    const yesterdayClose = parseFloat(info.y)
-    const volume = parseFloat(info.v) || 0
-    const openPrice = parseFloat(info.o) || yesterdayClose
+    // H07: 使用 safeParseFloat 防止 NaN
+    const currentPrice = safeParseFloat(info.z) || safeParseFloat(info.y)
+    const yesterdayClose = safeParseFloat(info.y)
+    const volume = safeParseFloat(info.v)
+    const openPrice = safeParseFloat(info.o) || yesterdayClose
 
-    // 計算漲跌幅
-    const change = currentPrice - yesterdayClose
-    const changePercent = (change / yesterdayClose) * 100
+    // H07: 安全計算漲跌幅
+    let change = 0
+    let changePercent = 0
+    if (yesterdayClose > 0) {
+      change = currentPrice - yesterdayClose
+      changePercent = (change / yesterdayClose) * 100
+    }
 
     return {
       name: '加權指數',
       price: currentPrice,
       change: change,
-      changePercent: changePercent.toFixed(2),
+      changePercent: Number.isFinite(changePercent) ? changePercent.toFixed(2) : '0.00',
       volume: volume,
       open: openPrice,
-      high: parseFloat(info.h) || currentPrice,
-      low: parseFloat(info.l) || currentPrice,
+      high: safeParseFloat(info.h) || currentPrice,
+      low: safeParseFloat(info.l) || currentPrice,
       timestamp: new Date().toISOString(),
       isTrading: info.z !== '-'  // 是否交易中
     }
@@ -102,24 +121,24 @@ export function marketToSentiment(marketData) {
     }
   }
 
-  const change = parseFloat(changePercent)
+  // H07: 安全的數值解析
+  const change = safeParseFloat(changePercent)
 
+  // H07: 使用 safeNormalize 防止 NaN
   // 張力 (Tension): 負值越大 → 張力越高
   // 範圍映射: -3% ~ +3% → 1.0 ~ 0.0
-  let tension = 0.5 - (change / 6)  // 每 1% 變動 ≈ 0.167 的張力變化
-  tension = Math.max(0, Math.min(1, tension))
+  const rawTension = 0.5 - (change / 6)
+  const tension = safeNormalize(rawTension, 0, 1, 0.5)
 
   // 浮力 (Buoyancy): 正值越大 → 浮力越高
   // 範圍映射: -3% ~ +3% → 0.0 ~ 1.0
-  let buoyancy = 0.5 + (change / 6)
-  buoyancy = Math.max(0, Math.min(1, buoyancy))
+  const rawBuoyancy = 0.5 + (change / 6)
+  const buoyancy = safeNormalize(rawBuoyancy, 0, 1, 0.5)
 
   // 活躍度 (Activity): 基於成交量
-  // 這裡用簡化邏輯，假設正常日成交量約 2000-4000 億
-  // 實際應該比較歷史平均
   const avgVolume = 3000  // 億
-  let activity = volume / avgVolume
-  activity = Math.max(0.2, Math.min(1, activity))
+  const rawActivity = Number.isFinite(volume) ? volume / avgVolume : 0.5
+  const activity = safeNormalize(rawActivity, 0.2, 1, 0.5)
 
   return {
     tension: parseFloat(tension.toFixed(3)),

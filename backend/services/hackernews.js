@@ -4,8 +4,15 @@
  */
 
 import { analyzeText } from './sentiment.js'
+import { fetchWithTimeout } from './utils.js'
 
 const HN_API = 'https://hacker-news.firebaseio.com/v0'
+
+// H06: timeout 設定
+const TIMEOUT = {
+  topStories: 5000,  // 取得文章列表
+  item: 3000         // 單一文章（較短，避免卡住）
+}
 
 /**
  * 取得熱門文章標題
@@ -14,8 +21,8 @@ const HN_API = 'https://hacker-news.firebaseio.com/v0'
  */
 export async function fetchTopStoryTitles(limit = 30) {
   try {
-    // 1. 取得熱門文章 ID
-    const response = await fetch(`${HN_API}/topstories.json`)
+    // 1. 取得熱門文章 ID（H06: 加 timeout）
+    const response = await fetchWithTimeout(`${HN_API}/topstories.json`, {}, TIMEOUT.topStories)
     if (!response.ok) {
       throw new Error(`HN API error: ${response.status}`)
     }
@@ -23,20 +30,27 @@ export async function fetchTopStoryTitles(limit = 30) {
     const storyIds = await response.json()
     const topIds = storyIds.slice(0, limit)
 
-    // 2. 並行抓取文章詳情（只要標題）
+    // 2. 並行抓取文章詳情（H06: 每個都加 timeout）
     const storyPromises = topIds.map(async (id) => {
       try {
-        const storyRes = await fetch(`${HN_API}/item/${id}.json`)
+        const storyRes = await fetchWithTimeout(`${HN_API}/item/${id}.json`, {}, TIMEOUT.item)
         if (!storyRes.ok) return null
         const story = await storyRes.json()
         return story?.title || null
-      } catch {
+      } catch (error) {
+        // H06: 記錄 timeout 但不中斷
+        console.warn(`HN item ${id} failed:`, error.message)
         return null
       }
     })
 
-    const titles = await Promise.all(storyPromises)
-    return titles.filter(Boolean)
+    // H06: 使用 allSettled 而非 all，更容錯
+    const results = await Promise.allSettled(storyPromises)
+    const titles = results
+      .filter(r => r.status === 'fulfilled' && r.value)
+      .map(r => r.value)
+
+    return titles
   } catch (error) {
     console.error('Failed to fetch HN stories:', error.message)
     return []
@@ -70,7 +84,6 @@ export async function analyzeHackerNews() {
     source: 'hackernews',
     status: 'live',
     storyCount: titles.length,
-    // 移除 debug 資訊（生產環境不需要）
     debug: undefined
   }
 }

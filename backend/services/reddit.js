@@ -4,9 +4,17 @@
  */
 
 import { analyzeText } from './sentiment.js'
+import { fetchWithTimeout } from './utils.js'
 
 // 使用多個 subreddit 混合，獲得更平衡的社會情緒
 const SUBREDDITS = ['worldnews', 'news', 'upliftingnews']
+
+// H06: timeout 設定
+const TIMEOUT = 5000
+
+// H05: 改善 User-Agent（Reddit API 要求格式）
+// 參考：https://github.com/reddit-archive/reddit/wiki/API#rules
+const REDDIT_USER_AGENT = 'web:loom-of-society:v1.0.0 (Social Sentiment Art Installation)'
 
 /**
  * 從單一 subreddit 抓取熱門文章
@@ -16,14 +24,16 @@ const SUBREDDITS = ['worldnews', 'news', 'upliftingnews']
  */
 async function fetchSubredditTitles(subreddit, limit = 15) {
   try {
-    const response = await fetch(
+    // H06: 加 timeout
+    const response = await fetchWithTimeout(
       `https://www.reddit.com/r/${subreddit}/hot.json?limit=${limit}`,
       {
         headers: {
-          // Reddit 要求 User-Agent
-          'User-Agent': 'LoomOfSociety/1.0 (Social Sentiment Art Installation)'
+          // H05: 改善 User-Agent
+          'User-Agent': REDDIT_USER_AGENT
         }
-      }
+      },
+      TIMEOUT
     )
 
     if (!response.ok) {
@@ -47,11 +57,15 @@ async function fetchSubredditTitles(subreddit, limit = 15) {
  * @returns {Promise<string[]>}
  */
 export async function fetchRedditTitles() {
-  const allPromises = SUBREDDITS.map(sub => fetchSubredditTitles(sub, 15))
-  const results = await Promise.all(allPromises)
+  // H06: 使用 allSettled 而非 all，更容錯
+  const results = await Promise.allSettled(
+    SUBREDDITS.map(sub => fetchSubredditTitles(sub, 15))
+  )
 
-  // 合併所有標題
-  return results.flat()
+  // 合併成功的結果
+  return results
+    .filter(r => r.status === 'fulfilled')
+    .flatMap(r => r.value)
 }
 
 /**

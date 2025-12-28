@@ -9,7 +9,7 @@
 
 一座數位藝術裝置，將社會的無形脈動——科技的躁動、金融的起伏、人心的共鳴——編織成永不重複的光之絲綢。這不是數據的圖表，而是情緒的交響樂。
 
-![The Loom of Society](assets/preview.png)
+![The Loom of Society](assets/preview.webp)
 
 > **"The world is a loom, and data is the thread. We are the weavers of this digital age."**
 
@@ -112,9 +112,20 @@ day-30-loom-of-society/
 │   ├── config.js           # 情緒參數與視覺配置
 │   ├── ribbon.js           # 絲帶幾何與動畫
 │   ├── particles.js        # 能量粒子與星塵
-│   └── bloom.js            # 後處理效果
+│   ├── bloom.js            # 後處理效果
+│   └── api.js              # API 串接
+├── backend/
+│   ├── server.js           # Express 伺服器
+│   ├── package.json        # 後端依賴
+│   ├── .env.example        # 環境變數範本
+│   └── services/
+│       ├── sentiment.js    # 情緒分析
+│       ├── hackernews.js   # HN API
+│       ├── reddit.js       # Reddit API
+│       ├── twse.js         # 台股 API
+│       └── utils.js        # 共用工具
 ├── assets/
-│   └── preview.png         # 預覽圖
+│   └── preview.webp        # 預覽圖
 ├── package.json
 ├── LICENSE
 ├── README.md
@@ -137,6 +148,40 @@ cd day-30-loom-of-society
 npm install
 npm run dev
 ```
+
+---
+
+## 部署
+
+### 前端 (Frontend)
+
+使用任何靜態網站託管服務即可（GitHub Pages、Netlify、Vercel）。
+
+### 後端 (Backend)
+
+部署前需要：
+
+1. 在 `backend/` 目錄執行依賴安裝：
+```bash
+cd backend
+npm install
+```
+
+2. 設定環境變數：
+
+| 變數名稱 | 說明 | 範例 |
+|---------|------|------|
+| `ALLOWED_ORIGINS` | 允許的前端網域（CORS 白名單） | `https://your-frontend.zeabur.app` |
+| `NODE_ENV` | 執行環境 | `production` |
+| `PORT` | 伺服器埠號（選填） | `3001` |
+
+**Zeabur 環境變數設定範例：**
+```
+ALLOWED_ORIGINS=https://your-frontend.zeabur.app
+NODE_ENV=production
+```
+
+> ⚠️ **注意**：`ALLOWED_ORIGINS` 必須設定正確，否則前端無法存取 API（CORS 錯誤）。
 
 ---
 

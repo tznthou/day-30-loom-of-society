@@ -1,6 +1,35 @@
 /**
  * 情緒分析服務
  * 使用關鍵字計數進行簡單的情緒判斷
+ *
+ * @module services/sentiment
+ */
+
+import { escapeRegExp, safeNormalize } from './utils.js'
+
+/**
+ * 情緒分數物件
+ * @typedef {Object} SentimentScore
+ * @property {number} tension - 張力 (0.1-0.9)，負面情緒越高越大
+ * @property {number} buoyancy - 浮力 (0.1-0.9)，正面情緒越高越大
+ * @property {number} activity - 活躍度 (0-1)，關鍵字密度
+ * @property {Object} [debug] - 除錯資訊（可選）
+ * @property {number} [debug.positiveCount] - 正面關鍵字計數
+ * @property {number} [debug.negativeCount] - 負面關鍵字計數
+ * @property {number} [debug.totalKeywords] - 總關鍵字數
+ * @property {number} [debug.sentiment] - 情緒傾向 (-1 到 1)
+ */
+
+/**
+ * 情緒類別
+ * @typedef {'tech' | 'finance' | 'society'} SentimentCategory
+ */
+
+/**
+ * 關鍵字模式物件
+ * @typedef {Object} KeywordPattern
+ * @property {string} word - 原始關鍵字
+ * @property {RegExp} regex - 編譯後的正則表達式
  */
 
 // 正面關鍵字（科技、金融、社會通用）
@@ -62,26 +91,48 @@ const NEGATIVE_KEYWORDS = {
   ]
 }
 
+// H02: 預編譯 RegExp（模組載入時執行一次）
+function buildPatterns(keywords) {
+  const result = {}
+  for (const [category, words] of Object.entries(keywords)) {
+    result[category] = words.map(word => ({
+      word,
+      // 轉義特殊字元 + 不分大小寫
+      regex: new RegExp(escapeRegExp(word), 'gi')
+    }))
+  }
+  return result
+}
+
+const POSITIVE_PATTERNS = buildPatterns(POSITIVE_KEYWORDS)
+const NEGATIVE_PATTERNS = buildPatterns(NEGATIVE_KEYWORDS)
+
 /**
  * 分析文本情緒
- * @param {string} text 要分析的文本
- * @param {string} category 類別 (tech/finance/society)
- * @returns {Object} 情緒分數
+ *
+ * @param {string} text - 要分析的文本
+ * @param {SentimentCategory} [category='society'] - 類別
+ * @returns {SentimentScore} 情緒分數
+ *
+ * @example
+ * const result = analyzeText('This is amazing breakthrough!', 'tech')
+ * // { tension: 0.3, buoyancy: 0.7, activity: 0.4, debug: {...} }
  */
 export function analyzeText(text, category = 'society') {
+  // H07: 輸入驗證
   if (!text || typeof text !== 'string') {
     return { tension: 0.5, buoyancy: 0.5, activity: 0.3 }
   }
 
-  const positiveWords = POSITIVE_KEYWORDS[category] || POSITIVE_KEYWORDS.society
-  const negativeWords = NEGATIVE_KEYWORDS[category] || NEGATIVE_KEYWORDS.society
+  // H02: 使用預編譯的 patterns
+  const positivePatterns = POSITIVE_PATTERNS[category] || POSITIVE_PATTERNS.society
+  const negativePatterns = NEGATIVE_PATTERNS[category] || NEGATIVE_PATTERNS.society
 
   let positiveCount = 0
   let negativeCount = 0
 
   // 計算正面關鍵字
-  for (const word of positiveWords) {
-    const regex = new RegExp(word, 'g')
+  for (const { regex } of positivePatterns) {
     const matches = text.match(regex)
     if (matches) {
       positiveCount += matches.length
@@ -89,8 +140,7 @@ export function analyzeText(text, category = 'society') {
   }
 
   // 計算負面關鍵字
-  for (const word of negativeWords) {
-    const regex = new RegExp(word, 'g')
+  for (const { regex } of negativePatterns) {
     const matches = text.match(regex)
     if (matches) {
       negativeCount += matches.length
@@ -102,28 +152,24 @@ export function analyzeText(text, category = 'society') {
 
   // 活躍度：基於關鍵字密度
   const keywordDensity = totalKeywords / Math.max(textLength / 100, 1)
-  let activity = Math.min(1, keywordDensity * 0.5 + 0.3)
+  const activity = safeNormalize(keywordDensity * 0.5 + 0.3, 0, 1, 0.3)
 
-  // 如果沒有找到關鍵字，返回中性值
+  // H07: 如果沒有找到關鍵字，返回中性值
   if (totalKeywords === 0) {
     return {
       tension: 0.5,
       buoyancy: 0.5,
-      activity: 0.3,
+      activity: parseFloat(activity.toFixed(3)),
       debug: { positiveCount, negativeCount, totalKeywords }
     }
   }
 
-  // 計算情緒傾向
+  // 計算情緒傾向（已確保 totalKeywords > 0）
   const sentiment = (positiveCount - negativeCount) / totalKeywords
 
-  // 張力：負面情緒越多，張力越高
-  let tension = 0.5 - (sentiment * 0.4)
-  tension = Math.max(0.1, Math.min(0.9, tension))
-
-  // 浮力：正面情緒越多，浮力越高
-  let buoyancy = 0.5 + (sentiment * 0.4)
-  buoyancy = Math.max(0.1, Math.min(0.9, buoyancy))
+  // H07: 使用 safeNormalize 防止 NaN
+  const tension = safeNormalize(0.5 - (sentiment * 0.4), 0.1, 0.9, 0.5)
+  const buoyancy = safeNormalize(0.5 + (sentiment * 0.4), 0.1, 0.9, 0.5)
 
   return {
     tension: parseFloat(tension.toFixed(3)),
@@ -134,9 +180,17 @@ export function analyzeText(text, category = 'society') {
 }
 
 /**
- * 合併多個情緒分數
- * @param {Array<Object>} sentiments 情緒分數陣列
- * @returns {Object} 合併後的情緒分數
+ * 合併多個情緒分數（取平均值）
+ *
+ * @param {SentimentScore[]} sentiments - 情緒分數陣列
+ * @returns {SentimentScore} 合併後的情緒分數（不含 debug）
+ *
+ * @example
+ * const merged = mergeSentiments([
+ *   { tension: 0.3, buoyancy: 0.7, activity: 0.5 },
+ *   { tension: 0.5, buoyancy: 0.5, activity: 0.3 }
+ * ])
+ * // { tension: 0.4, buoyancy: 0.6, activity: 0.4 }
  */
 export function mergeSentiments(sentiments) {
   if (!sentiments || sentiments.length === 0) {
@@ -144,9 +198,9 @@ export function mergeSentiments(sentiments) {
   }
 
   const sum = sentiments.reduce((acc, s) => ({
-    tension: acc.tension + s.tension,
-    buoyancy: acc.buoyancy + s.buoyancy,
-    activity: acc.activity + s.activity
+    tension: acc.tension + (s.tension || 0.5),
+    buoyancy: acc.buoyancy + (s.buoyancy || 0.5),
+    activity: acc.activity + (s.activity || 0.3)
   }), { tension: 0, buoyancy: 0, activity: 0 })
 
   const count = sentiments.length

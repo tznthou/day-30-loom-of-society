@@ -9,7 +9,7 @@
 
 A digital art installation that weaves the invisible pulse of society — the restlessness of technology, the fluctuations of finance, the resonance of human sentiment — into an ever-evolving tapestry of light. This is not a chart of data, but a symphony of emotion.
 
-![The Loom of Society](assets/preview.png)
+![The Loom of Society](assets/preview.webp)
 
 > **"The world is a loom, and data is the thread. We are the weavers of this digital age."**
 
@@ -112,9 +112,20 @@ day-30-loom-of-society/
 │   ├── config.js           # Sentiment params & visual config
 │   ├── ribbon.js           # Ribbon geometry & animation
 │   ├── particles.js        # Energy particles & star dust
-│   └── bloom.js            # Post-processing effects
+│   ├── bloom.js            # Post-processing effects
+│   └── api.js              # API integration
+├── backend/
+│   ├── server.js           # Express server
+│   ├── package.json        # Backend dependencies
+│   ├── .env.example        # Environment variables template
+│   └── services/
+│       ├── sentiment.js    # Sentiment analysis
+│       ├── hackernews.js   # HN API
+│       ├── reddit.js       # Reddit API
+│       ├── twse.js         # Taiwan stock API
+│       └── utils.js        # Shared utilities
 ├── assets/
-│   └── preview.png         # Preview image
+│   └── preview.webp        # Preview image
 ├── package.json
 ├── LICENSE
 ├── README.md
@@ -137,6 +148,40 @@ cd day-30-loom-of-society
 npm install
 npm run dev
 ```
+
+---
+
+## Deployment
+
+### Frontend
+
+Use any static hosting service (GitHub Pages, Netlify, Vercel).
+
+### Backend
+
+Before deployment:
+
+1. Install dependencies in `backend/` directory:
+```bash
+cd backend
+npm install
+```
+
+2. Set environment variables:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `ALLOWED_ORIGINS` | Frontend domain (CORS whitelist) | `https://your-frontend.zeabur.app` |
+| `NODE_ENV` | Environment mode | `production` |
+| `PORT` | Server port (optional) | `3001` |
+
+**Zeabur environment variables example:**
+```
+ALLOWED_ORIGINS=https://your-frontend.zeabur.app
+NODE_ENV=production
+```
+
+> ⚠️ **Important**: `ALLOWED_ORIGINS` must be set correctly, otherwise the frontend cannot access the API (CORS error).
 
 ---
 

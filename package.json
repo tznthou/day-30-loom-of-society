@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "The Loom of Society - A generative art installation visualizing social sentiment as digital silk ribbons",
   "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",

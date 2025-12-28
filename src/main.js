@@ -1,6 +1,13 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
-import { RIBBON_CONFIG, mockSentiment, VISUAL_CONFIG } from './config.js'
+import {
+  RIBBON_CONFIG,
+  mockSentiment,
+  VISUAL_CONFIG,
+  RENDERER_CONFIG,
+  CONTROLS_CONFIG,
+  TIMING
+} from './config.js'
 import { createRibbon, updateRibbon, createBackgroundRibbons, updateBackgroundRibbons } from './ribbon.js'
 import { createRibbonParticles, updateParticles, createStarDust, updateStarDust } from './particles.js'
 import { createPostProcessing, updateBloomParams } from './bloom.js'
@@ -17,6 +24,10 @@ let backgroundRibbons
 let starDust
 let startTime
 
+// H03: 動畫與輪詢控制
+let animationFrameId = null
+let stopPolling = null
+
 // 當前情緒數據（會被即時更新）
 let currentSentiment = { ...mockSentiment }
 
@@ -28,7 +39,7 @@ async function init() {
 
   // Scene
   scene = new THREE.Scene()
-  scene.background = new THREE.Color(0x020208)  // 近乎純黑，微帶深藍
+  scene.background = new THREE.Color(RENDERER_CONFIG.background)
 
   // Camera
   const { fov, near, far, position } = VISUAL_CONFIG.camera
@@ -42,9 +53,9 @@ async function init() {
     powerPreference: 'high-performance'
   })
   renderer.setSize(window.innerWidth, window.innerHeight)
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, RENDERER_CONFIG.maxPixelRatio))
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 0.9
+  renderer.toneMappingExposure = RENDERER_CONFIG.toneMappingExposure
 
   const container = document.getElementById('canvas-container')
   container.appendChild(renderer.domElement)
@@ -52,12 +63,12 @@ async function init() {
   // Controls
   controls = new OrbitControls(camera, renderer.domElement)
   controls.enableDamping = true
-  controls.dampingFactor = 0.05
+  controls.dampingFactor = CONTROLS_CONFIG.dampingFactor
   controls.enableZoom = true
-  controls.minDistance = 3
-  controls.maxDistance = 20
+  controls.minDistance = CONTROLS_CONFIG.minDistance
+  controls.maxDistance = CONTROLS_CONFIG.maxDistance
   controls.autoRotate = true
-  controls.autoRotateSpeed = 0.3
+  controls.autoRotateSpeed = CONTROLS_CONFIG.autoRotateSpeed
 
   // Post-processing
   postProcessing = createPostProcessing(renderer, scene, camera)
@@ -68,18 +79,96 @@ async function init() {
   // 事件監聽
   window.addEventListener('resize', onResize)
 
+  // H03: 頁面卸載時清理
+  window.addEventListener('beforeunload', cleanup)
+
+  // H03: 分頁可見性變化時暫停/恢復動畫
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+
   // 隱藏 loading
   hideLoading()
 
-  // 開始即時數據更新（每 30 秒）
-  startSentimentPolling((sentiment) => {
+  // 開始即時數據更新（H03: 存儲停止函數）
+  stopPolling = startSentimentPolling((sentiment) => {
     currentSentiment = sentiment
     updateSentimentDisplay(sentiment)
     updateRibbonSentiments(sentiment)
-  }, 30000)
+  }, TIMING.sentimentPolling)
 
   // 開始動畫
   animate()
+}
+
+// ============================================
+// H03: 資源清理函式
+// ============================================
+function cleanup() {
+  console.log('Cleaning up resources...')
+
+  // 停止動畫迴圈
+  if (animationFrameId !== null) {
+    cancelAnimationFrame(animationFrameId)
+    animationFrameId = null
+  }
+
+  // 停止 API 輪詢
+  if (stopPolling) {
+    stopPolling()
+    stopPolling = null
+  }
+
+  // 清理 Three.js 資源
+  if (scene) {
+    scene.traverse((object) => {
+      if (object.geometry) {
+        object.geometry.dispose()
+      }
+      if (object.material) {
+        if (Array.isArray(object.material)) {
+          object.material.forEach(m => m.dispose())
+        } else {
+          object.material.dispose()
+        }
+      }
+    })
+  }
+
+  // 清理 renderer
+  if (renderer) {
+    renderer.dispose()
+    renderer.forceContextLoss()
+    if (renderer.domElement && renderer.domElement.parentNode) {
+      renderer.domElement.parentNode.removeChild(renderer.domElement)
+    }
+  }
+
+  // 清理 postProcessing
+  if (postProcessing && postProcessing.composer) {
+    postProcessing.composer.dispose()
+  }
+
+  // 移除事件監聽器
+  window.removeEventListener('resize', onResize)
+  window.removeEventListener('beforeunload', cleanup)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+
+  console.log('Cleanup complete')
+}
+
+// H03: 分頁可見性處理（分頁隱藏時暫停動畫節省資源）
+function handleVisibilityChange() {
+  if (document.hidden) {
+    // 分頁隱藏時暫停動畫
+    if (animationFrameId !== null) {
+      cancelAnimationFrame(animationFrameId)
+      animationFrameId = null
+    }
+  } else {
+    // 分頁顯示時恢復動畫
+    if (animationFrameId === null && scene) {
+      animate()
+    }
+  }
 }
 
 // ============================================
@@ -136,7 +225,8 @@ async function createScene() {
   }
 
   // 5. 環境光（微弱，主要靠自發光）
-  const ambientLight = new THREE.AmbientLight(0x222244, 0.1)
+  const { color, intensity } = RENDERER_CONFIG.ambientLight
+  const ambientLight = new THREE.AmbientLight(color, intensity)
   scene.add(ambientLight)
 }
 
@@ -144,7 +234,8 @@ async function createScene() {
 // 動畫循環
 // ============================================
 function animate() {
-  requestAnimationFrame(animate)
+  // H03: 存儲 animationFrameId 以便清理
+  animationFrameId = requestAnimationFrame(animate)
 
   const time = performance.now() - startTime
 
@@ -154,8 +245,9 @@ function animate() {
   // 更新星塵
   updateStarDust(starDust, time)
 
-  // 更新遠景細絲（每 3 幀更新一次，節省效能）
-  if (Math.floor(time / 16) % 3 === 0) {
+  // 更新遠景細絲（每 N 幀更新一次，節省效能）
+  // 使用 16ms 作為一幀的基準時間
+  if (Math.floor(time / 16) % TIMING.backgroundRibbonFrameSkip === 0) {
     updateBackgroundRibbons(backgroundRibbons, time)
   }
 
@@ -202,14 +294,14 @@ function hideLoading() {
       hud.classList.add('visible')
       controlsHint.classList.add('visible')
 
-      // 5 秒後淡出操作提示
+      // 一段時間後淡出操作提示
       setTimeout(() => {
         controlsHint.classList.remove('visible')
-      }, 5000)
-    }, 1000)
+      }, TIMING.controlsHintDuration)
+    }, TIMING.hudShowDelay)
 
-    setTimeout(() => loading.remove(), 1000)
-  }, 500)
+    setTimeout(() => loading.remove(), TIMING.loadingRemoveDelay)
+  }, TIMING.loadingHideDelay)
 }
 
 // ============================================
@@ -231,7 +323,7 @@ function setupIntro() {
     intro.classList.add('hidden')
 
     // 等待過渡動畫
-    await new Promise(resolve => setTimeout(resolve, 800))
+    await new Promise(resolve => setTimeout(resolve, TIMING.introTransition))
 
     // 初始化場景
     try {
@@ -242,7 +334,7 @@ function setupIntro() {
     }
 
     // 移除前導頁面
-    setTimeout(() => intro.remove(), 1500)
+    setTimeout(() => intro.remove(), TIMING.introRemoveDelay)
   })
 }
 
@@ -250,3 +342,8 @@ function setupIntro() {
 // 啟動
 // ============================================
 setupIntro()
+
+// H03: 導出清理函式供外部使用（測試）
+if (typeof window !== 'undefined') {
+  window.__loomCleanup = cleanup
+}

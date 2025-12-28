@@ -10,23 +10,54 @@ const API_BASE = import.meta.env?.VITE_API_URL || 'http://localhost:3001'
 let lastSentiment = null
 
 /**
+ * M05: fetch with retry - 網路暫時錯誤時自動重試
+ * @param {string} url
+ * @param {number} maxRetries
+ * @param {number} delayMs
+ * @returns {Promise<Response>}
+ */
+async function fetchWithRetry(url, maxRetries = 2, delayMs = 1500) {
+  for (let i = 0; i <= maxRetries; i++) {
+    try {
+      const response = await fetch(url)
+
+      if (response.ok) {
+        return response
+      }
+
+      // 5xx 錯誤重試，4xx 錯誤不重試
+      if (response.status >= 500 && i < maxRetries) {
+        console.warn(`Retry ${i + 1}/${maxRetries} due to ${response.status}`)
+        await new Promise(resolve => setTimeout(resolve, delayMs * (i + 1)))
+        continue
+      }
+
+      throw new Error(`API error: ${response.status}`)
+    } catch (error) {
+      if (i < maxRetries && error.name !== 'AbortError') {
+        console.warn(`Retry ${i + 1}/${maxRetries}:`, error.message)
+        await new Promise(resolve => setTimeout(resolve, delayMs * (i + 1)))
+      } else {
+        throw error
+      }
+    }
+  }
+}
+
+/**
  * 取得即時情緒數據
  * @returns {Promise<Object>} 情緒數據
  */
 export async function fetchSentiment() {
   try {
-    const response = await fetch(`${API_BASE}/api/sentiment`)
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`)
-    }
-
+    // M05: 使用 fetchWithRetry
+    const response = await fetchWithRetry(`${API_BASE}/api/sentiment`, 2, 1500)
     const data = await response.json()
     lastSentiment = data.sentiment
 
     return data.sentiment
   } catch (error) {
-    console.warn('Failed to fetch sentiment, using fallback:', error.message)
+    console.warn('Failed to fetch sentiment after retries:', error.message)
 
     // 返回上次數據或預設值
     return lastSentiment || getDefaultSentiment()

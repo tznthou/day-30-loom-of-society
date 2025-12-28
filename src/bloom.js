@@ -21,9 +21,9 @@ export function createPostProcessing(renderer, scene, camera) {
   // Bloom Pass - 高光擴散效果
   const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-    bloom.strength,   // 強度
-    bloom.radius,     // 擴散半徑
-    bloom.threshold   // 亮度閾值
+    bloom.strength,     // 強度
+    bloom.radius,       // 擴散半徑
+    bloom.threshold     // 亮度閾值
   )
   composer.addPass(bloomPass)
 
@@ -42,14 +42,16 @@ export function createPostProcessing(renderer, scene, camera) {
 }
 
 /**
- * 動態調整 Bloom 參數（可根據情緒變化，保持柔和）
+ * 動態調整 Bloom 參數（根據情緒變化，保持柔和）
  */
 export function updateBloomParams(bloomPass, sentiment) {
-  // 高活躍度時 Bloom 稍強，但保持柔和
+  const { bloom } = VISUAL_CONFIG
+
+  // 計算平均活躍度和張力
   const avgActivity = (sentiment.tech.activity + sentiment.finance.activity + sentiment.society.activity) / 3
   const avgTension = (sentiment.tech.tension + sentiment.finance.tension + sentiment.society.tension) / 3
 
-  // 基礎值 + 輕微動態調整
-  bloomPass.strength = VISUAL_CONFIG.bloom.strength + avgActivity * 0.2
-  bloomPass.radius = VISUAL_CONFIG.bloom.radius + avgTension * 0.1
+  // 高活躍度時 Bloom 稍強，高張力時擴散半徑稍大
+  bloomPass.strength = bloom.strength + avgActivity * bloom.activityInfluence
+  bloomPass.radius = bloom.radius + avgTension * bloom.tensionInfluence
 }

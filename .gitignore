@@ -24,3 +24,6 @@ __pycache__/
 *.py[cod]
 .venv/
 venv/
+
+# Code review reports
+CODE_REVIEW*.md
