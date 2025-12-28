@@ -4,7 +4,7 @@
  */
 
 // API 端點（開發時用 localhost，部署時改成 Zeabur URL）
-const API_BASE = import.meta.env?.VITE_API_URL || 'http://localhost:3001'
+const API_BASE = import.meta.env?.VITE_API_URL || 'https://loomsc-api.zeabur.app'
 
 // 上次取得的數據（fallback 用）
 let lastSentiment = null
