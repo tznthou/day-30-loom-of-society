@@ -6,9 +6,15 @@
 // 正面關鍵字（科技、金融、社會通用）
 const POSITIVE_KEYWORDS = {
   tech: [
+    // 中文
     '突破', '創新', '成長', '領先', '合作', '投資', '擴張', '升級',
     '量產', '訂單', '獲利', '營收', '新高', '看好', '利多', '加碼',
-    'AI', '半導體', '晶片', '5G', '電動車', '綠能', '雲端'
+    'AI', '半導體', '晶片', '5G', '電動車', '綠能', '雲端',
+    // 英文 (Hacker News)
+    'breakthrough', 'innovation', 'launch', 'released', 'announcing',
+    'open source', 'faster', 'better', 'improved', 'success', 'growth',
+    'funding', 'acquired', 'partnership', 'record', 'milestone',
+    'revolutionary', 'game-changer', 'excited', 'amazing', 'awesome'
   ],
   finance: [
     '上漲', '走高', '反彈', '突破', '買超', '加碼', '看多', '利多',
@@ -24,9 +30,16 @@ const POSITIVE_KEYWORDS = {
 // 負面關鍵字
 const NEGATIVE_KEYWORDS = {
   tech: [
+    // 中文
     '衰退', '下滑', '砍單', '裁員', '虧損', '衰減', '停工', '延遲',
     '缺貨', '斷鏈', '制裁', '禁令', '風險', '利空', '減產', '下修',
-    '駭客', '資安', '漏洞', '召回'
+    '駭客', '資安', '漏洞', '召回',
+    // 英文 (Hacker News)
+    'layoff', 'layoffs', 'fired', 'shutdown', 'bankrupt', 'failed',
+    'breach', 'hacked', 'vulnerability', 'exploit', 'scam', 'fraud',
+    'lawsuit', 'sued', 'investigation', 'controversy', 'backlash',
+    'deprecated', 'broken', 'bug', 'outage', 'down', 'struggling',
+    'disappointing', 'concerned', 'worried', 'warning', 'danger'
   ],
   finance: [
     '下跌', '重挫', '崩盤', '賣超', '減碼', '看空', '利空', '虧損',

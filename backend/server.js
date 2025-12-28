@@ -7,6 +7,7 @@ import express from 'express'
 import cors from 'cors'
 import { fetchMarketIndex, marketToSentiment } from './services/twse.js'
 import { analyzeText } from './services/sentiment.js'
+import { analyzeHackerNews } from './services/hackernews.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -33,21 +34,19 @@ async function getCachedSentiment() {
     return cache.data
   }
 
-  // 抓取新數據
-  const marketData = await fetchMarketIndex()
+  // 並行抓取所有數據源
+  const [marketData, techSentiment] = await Promise.all([
+    fetchMarketIndex(),
+    analyzeHackerNews()
+  ])
+
   const financeSentiment = marketToSentiment(marketData)
 
-  // 科技和社會暫時用模擬數據（之後接 PTT/新聞）
   const result = {
     timestamp: new Date().toISOString(),
     market: marketData,
     sentiment: {
-      tech: {
-        tension: 0.4 + Math.random() * 0.2,
-        buoyancy: 0.5 + Math.random() * 0.2,
-        activity: 0.4 + Math.random() * 0.3,
-        source: 'mock'  // 之後換成 PTT 科技版
-      },
+      tech: techSentiment,
       finance: {
         ...financeSentiment,
         source: 'twse'
