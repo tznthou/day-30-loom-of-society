@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <!-- 三條絲帶的漸層 -->
+    <linearGradient id="tech" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3db8d4"/>
+      <stop offset="100%" stop-color="#0e8e9e"/>
+    </linearGradient>
+    <linearGradient id="finance" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#e6a030"/>
+      <stop offset="100%" stop-color="#d4820e"/>
+    </linearGradient>
+    <linearGradient id="society" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#d47090"/>
+      <stop offset="100%" stop-color="#a85070"/>
+    </linearGradient>
+    <!-- 發光效果 -->
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="0.8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- 深色背景 -->
+  <rect width="32" height="32" rx="6" fill="#0a0a12"/>
+
+  <!-- 三條交織的絲帶 -->
+  <g filter="url(#glow)">
+    <!-- 科技絲帶 - 從左上到右下 -->
+    <path
+      d="M4 8 Q10 16, 16 12 Q22 8, 28 16 Q22 24, 16 20 Q10 16, 4 24"
+      fill="none"
+      stroke="url(#tech)"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      opacity="0.9"
+    />
+
+    <!-- 金融絲帶 - 從右上到左下 -->
+    <path
+      d="M28 6 Q22 12, 16 16 Q10 20, 4 14 Q10 8, 16 16 Q22 24, 28 26"
+      fill="none"
+      stroke="url(#finance)"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      opacity="0.9"
+    />
+
+    <!-- 社會絲帶 - 橫向波動 -->
+    <path
+      d="M6 16 Q11 6, 16 16 Q21 26, 26 16"
+      fill="none"
+      stroke="url(#society)"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      opacity="0.9"
+    />
+  </g>
+
+  <!-- 中心交織點 - 發光 -->
+  <circle cx="16" cy="16" r="2" fill="#fff" opacity="0.6"/>
+</svg>

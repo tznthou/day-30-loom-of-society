@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="The Loom of Society - 社會織機，將社會情緒編織成數位絲綢的生成藝術裝置">
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <title>The Loom of Society | 社會織機</title>
 
   <!-- Import Map for CDN modules -->
@@ -201,6 +202,129 @@
       letter-spacing: 0.1em;
     }
 
+    /* 數據來源區塊 */
+    .data-sources {
+      margin-bottom: 2.5rem;
+      max-width: 520px;
+    }
+
+    .data-sources-toggle {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.35);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      letter-spacing: 0.15em;
+      padding: 0.5rem 1rem;
+      transition: color 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin: 0 auto;
+    }
+
+    .data-sources-toggle:hover {
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .data-sources-toggle::before {
+      content: '▽';
+      font-size: 0.6rem;
+      transition: transform 0.3s ease;
+    }
+
+    .data-sources-toggle.expanded::before {
+      transform: rotate(180deg);
+    }
+
+    .data-sources-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease, opacity 0.5s ease;
+      opacity: 0;
+    }
+
+    .data-sources-content.visible {
+      max-height: 400px;
+      opacity: 1;
+    }
+
+    .data-source-item {
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .data-source-item:last-child {
+      border-bottom: none;
+    }
+
+    .data-source-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .data-source-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .data-source-dot.tech { background: #3db8d4; }
+    .data-source-dot.finance { background: #e6a030; }
+    .data-source-dot.society { background: #d47090; }
+
+    .data-source-name {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.1em;
+    }
+
+    .data-source-status {
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 0.65rem;
+      color: rgba(255, 255, 255, 0.3);
+      margin-left: auto;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .data-source-status.live {
+      color: rgba(100, 200, 150, 0.6);
+    }
+
+    .data-source-status.live::before {
+      content: '●';
+      margin-right: 0.3rem;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    .data-source-desc {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.35);
+      line-height: 1.7;
+      padding-left: 0.9rem;
+    }
+
+    .data-source-meaning {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.75rem;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.25);
+      line-height: 1.6;
+      padding-left: 0.9rem;
+      margin-top: 0.4rem;
+    }
+
     /* 進入按鈕 */
     .intro-enter {
       position: relative;
@@ -373,6 +497,60 @@
         </div>
       </div>
 
+      <!-- 數據來源說明 -->
+      <div class="data-sources">
+        <button class="data-sources-toggle" id="toggle-sources">
+          數據來源 Data Sources
+        </button>
+
+        <div class="data-sources-content" id="sources-content">
+          <!-- 金融 -->
+          <div class="data-source-item">
+            <div class="data-source-header">
+              <span class="data-source-dot finance"></span>
+              <span class="data-source-name">台灣證券交易所</span>
+              <span class="data-source-status live">Live</span>
+            </div>
+            <p class="data-source-desc">
+              即時擷取加權股價指數，每 30 秒更新。漲跌幅影響絲帶張力與浮力。
+            </p>
+            <p class="data-source-meaning">
+              The market is the collective pulse of human hope and fear, crystallized into numbers.
+            </p>
+          </div>
+
+          <!-- 科技 -->
+          <div class="data-source-item">
+            <div class="data-source-header">
+              <span class="data-source-dot tech"></span>
+              <span class="data-source-name">科技脈動</span>
+              <span class="data-source-status">Simulated</span>
+            </div>
+            <p class="data-source-desc">
+              目前為模擬數據。未來將串接 PTT 科技版與新聞，捕捉創新與焦慮的暗流。
+            </p>
+            <p class="data-source-meaning">
+              Every breakthrough carries the weight of a thousand late nights.
+            </p>
+          </div>
+
+          <!-- 社會 -->
+          <div class="data-source-item">
+            <div class="data-source-header">
+              <span class="data-source-dot society"></span>
+              <span class="data-source-name">社會情緒</span>
+              <span class="data-source-status">Simulated</span>
+            </div>
+            <p class="data-source-desc">
+              目前為模擬數據。未來將分析社群討論與新聞標題，感知集體的喜怒哀樂。
+            </p>
+            <p class="data-source-meaning">
+              What we talk about reveals who we are becoming.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <button class="intro-enter" id="enter-btn">
         Enter the Loom
       </button>
@@ -402,5 +580,13 @@
   </div>
 
   <script type="module" src="./src/main.js"></script>
+
+  <!-- 數據來源展開/收合 -->
+  <script>
+    document.getElementById('toggle-sources').addEventListener('click', function() {
+      this.classList.toggle('expanded');
+      document.getElementById('sources-content').classList.toggle('visible');
+    });
+  </script>
 </body>
 </html>
