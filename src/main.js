@@ -193,16 +193,18 @@ function hideLoading() {
   const loading = document.getElementById('loading')
   const hud = document.getElementById('hud')
   const controlsHint = document.getElementById('controls-hint')
+  const infoBtn = document.getElementById('info-btn')
 
   setTimeout(() => {
     loading.classList.add('hidden')
 
-    // 顯示 HUD 和操作提示
+    // 顯示 HUD、操作提示、資訊按鈕
     setTimeout(() => {
       hud.classList.add('visible')
       controlsHint.classList.add('visible')
+      infoBtn.classList.add('visible')
 
-      // 3 秒後淡出操作提示
+      // 5 秒後淡出操作提示
       setTimeout(() => {
         controlsHint.classList.remove('visible')
       }, 5000)

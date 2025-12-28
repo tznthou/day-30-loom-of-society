@@ -461,6 +461,222 @@
     #controls-hint.visible {
       opacity: 1;
     }
+
+    /* ==========================================
+       解讀指南面板
+       ========================================== */
+    #info-btn {
+      position: fixed;
+      top: 24px;
+      right: 24px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.3);
+      color: rgba(255, 255, 255, 0.5);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 16px;
+      font-style: italic;
+      cursor: pointer;
+      z-index: 200;
+      opacity: 0;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #info-btn.visible {
+      opacity: 1;
+    }
+
+    #info-btn:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      color: rgba(255, 255, 255, 0.8);
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    /* 指南面板 */
+    #guide-panel {
+      position: fixed;
+      top: 0;
+      right: -480px;
+      width: 420px;
+      max-width: 90vw;
+      height: 100%;
+      background: rgba(2, 2, 8, 0.95);
+      backdrop-filter: blur(20px);
+      z-index: 300;
+      overflow-y: auto;
+      transition: right 0.4s ease;
+      border-left: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    #guide-panel.visible {
+      right: 0;
+    }
+
+    .guide-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 24px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+
+    .guide-close:hover {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .guide-content {
+      padding: 60px 40px 40px;
+    }
+
+    .guide-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.85);
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .guide-subtitle {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.4);
+      letter-spacing: 0.15em;
+      margin-bottom: 2.5rem;
+    }
+
+    .guide-section {
+      margin-bottom: 2rem;
+    }
+
+    .guide-section-title {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.6);
+      letter-spacing: 0.1em;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .guide-item {
+      margin-bottom: 1.2rem;
+    }
+
+    .guide-item-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .guide-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .guide-dot.tech { background: #3db8d4; box-shadow: 0 0 8px #3db8d4; }
+    .guide-dot.finance { background: #e6a030; box-shadow: 0 0 8px #e6a030; }
+    .guide-dot.society { background: #d47090; box-shadow: 0 0 8px #d47090; }
+
+    .guide-item-name {
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .guide-item-desc {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.45);
+      line-height: 1.7;
+      padding-left: 1.1rem;
+    }
+
+    .guide-metric {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      padding: 0.8rem;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 4px;
+    }
+
+    .guide-metric-icon {
+      font-size: 1.2rem;
+      opacity: 0.6;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .guide-metric-content {
+      flex: 1;
+    }
+
+    .guide-metric-name {
+      font-family: 'SF Mono', 'Consolas', monospace;
+      font-size: 0.7rem;
+      color: rgba(255, 255, 255, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.3rem;
+    }
+
+    .guide-metric-desc {
+      font-family: 'Noto Serif TC', serif;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.4);
+      line-height: 1.6;
+    }
+
+    .guide-footer {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .guide-footer-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.8rem;
+      font-style: italic;
+      color: rgba(255, 255, 255, 0.3);
+      line-height: 1.8;
+      text-align: center;
+    }
+
+    /* 背景遮罩 */
+    #guide-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 250;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    #guide-overlay.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
   </style>
 </head>
 <body>
@@ -579,6 +795,106 @@
     drag to rotate · scroll to zoom
   </div>
 
+  <!-- 資訊按鈕 -->
+  <button id="info-btn">i</button>
+
+  <!-- 指南遮罩 -->
+  <div id="guide-overlay"></div>
+
+  <!-- 解讀指南面板 -->
+  <div id="guide-panel">
+    <button class="guide-close">&times;</button>
+    <div class="guide-content">
+      <h2 class="guide-title">Reading the Loom</h2>
+      <p class="guide-subtitle">如何解讀織機</p>
+
+      <!-- 三條絲帶 -->
+      <div class="guide-section">
+        <h3 class="guide-section-title">三條絲帶 The Three Ribbons</h3>
+
+        <div class="guide-item">
+          <div class="guide-item-header">
+            <span class="guide-dot tech"></span>
+            <span class="guide-item-name">Tech · 科技</span>
+          </div>
+          <p class="guide-item-desc">
+            來自 Hacker News 熱門文章。反映全球科技社群對創新、突破、裁員、資安事件的即時反應。
+          </p>
+        </div>
+
+        <div class="guide-item">
+          <div class="guide-item-header">
+            <span class="guide-dot finance"></span>
+            <span class="guide-item-name">Finance · 金融</span>
+          </div>
+          <p class="guide-item-desc">
+            來自台灣證券交易所加權指數。漲跌幅度直接影響絲帶的張力與浮力，反映市場的集體情緒。
+          </p>
+        </div>
+
+        <div class="guide-item">
+          <div class="guide-item-header">
+            <span class="guide-dot society"></span>
+            <span class="guide-item-name">Society · 社會</span>
+          </div>
+          <p class="guide-item-desc">
+            來自 Reddit 世界新聞。分析 r/worldnews、r/news、r/upliftingnews 的標題情緒。
+          </p>
+        </div>
+      </div>
+
+      <!-- 指標解讀 -->
+      <div class="guide-section">
+        <h3 class="guide-section-title">視覺指標 Visual Metrics</h3>
+
+        <div class="guide-metric">
+          <div class="guide-metric-icon">⤴</div>
+          <div class="guide-metric-content">
+            <div class="guide-metric-name">Tension · 張力</div>
+            <p class="guide-metric-desc">
+              負面情緒越高，張力越大。絲帶振動加快，曲線更緊繃，色彩趨向冷調。
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-metric">
+          <div class="guide-metric-icon">⤵</div>
+          <div class="guide-metric-content">
+            <div class="guide-metric-name">Buoyancy · 浮力</div>
+            <p class="guide-metric-desc">
+              正面情緒越高，浮力越大。絲帶向上漂浮，動態更流暢，光暈更柔和。
+            </p>
+          </div>
+        </div>
+
+        <div class="guide-metric">
+          <div class="guide-metric-icon">✧</div>
+          <div class="guide-metric-content">
+            <div class="guide-metric-name">Activity · 活躍度</div>
+            <p class="guide-metric-desc">
+              討論熱度越高，粒子越密集，光暈越強烈。反映話題的關注程度。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 更新頻率 -->
+      <div class="guide-section">
+        <h3 class="guide-section-title">數據更新 Data Refresh</h3>
+        <p class="guide-item-desc" style="padding-left: 0;">
+          每 30 秒自動抓取最新數據，無需重新載入頁面。左下角 HUD 顯示當前平均張力與浮力。
+        </p>
+      </div>
+
+      <div class="guide-footer">
+        <p class="guide-footer-text">
+          "We don't see the world as it is,<br>
+          we see it as we talk about it."
+        </p>
+      </div>
+    </div>
+  </div>
+
   <script type="module" src="./src/main.js"></script>
 
   <!-- 數據來源展開/收合 -->
@@ -586,6 +902,33 @@
     document.getElementById('toggle-sources').addEventListener('click', function() {
       this.classList.toggle('expanded');
       document.getElementById('sources-content').classList.toggle('visible');
+    });
+  </script>
+
+  <!-- 解讀指南面板控制 -->
+  <script>
+    const infoBtn = document.getElementById('info-btn');
+    const guidePanel = document.getElementById('guide-panel');
+    const guideOverlay = document.getElementById('guide-overlay');
+    const guideClose = document.querySelector('.guide-close');
+
+    function openGuide() {
+      guidePanel.classList.add('visible');
+      guideOverlay.classList.add('visible');
+    }
+
+    function closeGuide() {
+      guidePanel.classList.remove('visible');
+      guideOverlay.classList.remove('visible');
+    }
+
+    infoBtn.addEventListener('click', openGuide);
+    guideClose.addEventListener('click', closeGuide);
+    guideOverlay.addEventListener('click', closeGuide);
+
+    // ESC 關閉
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeGuide();
     });
   </script>
 </body>
