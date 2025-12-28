@@ -281,8 +281,8 @@ This is not an end, but the beginning of another journey.
 
 ## Future Expansion
 
-- [ ] Real-time data integration (PTT, news, stock market)
-- [ ] Sentiment analysis NLP engine
+- [x] Real-time data integration ~~(PTT, news, stock market)~~ → HN, Reddit, TWSE
+- [x] Sentiment analysis NLP engine
 - [ ] Ribbon interweaving physics simulation
 - [ ] Chromatic aberration effect
 - [ ] Ambient sound response

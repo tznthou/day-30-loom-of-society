@@ -281,8 +281,8 @@ NODE_ENV=production
 
 ## 未來擴展
 
-- [ ] 接入即時數據（PTT、新聞、股市）
-- [ ] 情緒分析 NLP 引擎
+- [x] 接入即時數據 ~~（PTT、新聞、股市）~~ → HN、Reddit、TWSE
+- [x] 情緒分析 NLP 引擎
 - [ ] 絲帶交織物理模擬
 - [ ] 色散效果 (Chromatic Aberration)
 - [ ] 環境音效響應
