@@ -27,3 +27,4 @@ venv/
 
 # Code review reports
 CODE_REVIEW*.md
+.claude/
