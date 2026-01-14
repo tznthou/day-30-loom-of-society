@@ -13,8 +13,9 @@ export const RIBBON_CONFIG = {
     baseColor: { h: 195, s: 0.85, l: 0.55 },   // 青藍
     stressColor: { h: 280, s: 0.7, l: 0.4 },   // 冷紫
     relaxColor: { h: 165, s: 0.75, l: 0.5 },   // 翠綠
-    position: { x: 0, y: 0.5, z: 0 },
-    phase: 0
+    position: { x: 0, y: 0.15, z: 0 },         // Y 軸微調
+    phase: 0,
+    weaveIndex: 0                              // 交織順序索引
   },
   // 金融脈絡 - 琥珀金系
   finance: {
@@ -22,8 +23,9 @@ export const RIBBON_CONFIG = {
     baseColor: { h: 35, s: 0.9, l: 0.55 },     // 琥珀金
     stressColor: { h: 0, s: 0.8, l: 0.45 },    // 深紅
     relaxColor: { h: 50, s: 0.85, l: 0.6 },    // 暖金
-    position: { x: -1.5, y: -0.3, z: 0.5 },
-    phase: Math.PI * 0.33
+    position: { x: 0, y: 0, z: 0 },            // Y 拉近：-0.3 → 0，X/Z 歸零
+    phase: Math.PI * 0.33,
+    weaveIndex: 1                              // 交織順序索引
   },
   // 社會脈絡 - 珊瑚粉系
   society: {
@@ -31,8 +33,9 @@ export const RIBBON_CONFIG = {
     baseColor: { h: 340, s: 0.7, l: 0.6 },     // 珊瑚粉
     stressColor: { h: 320, s: 0.6, l: 0.35 },  // 暗紫紅
     relaxColor: { h: 25, s: 0.8, l: 0.65 },    // 暖橙
-    position: { x: 1.5, y: -0.5, z: -0.5 },
-    phase: Math.PI * 0.66
+    position: { x: 0, y: -0.15, z: 0 },        // Y 軸微調
+    phase: Math.PI * 0.66,
+    weaveIndex: 2                              // 交織順序索引
   }
 }
 
@@ -140,6 +143,14 @@ export const VISUAL_CONFIG = {
       frequency: 0.001,           // 呼吸頻率
       amplitude: 0.1,             // 呼吸振幅 (lightness ±)
       baseline: 0.9               // 呼吸基準值
+    },
+
+    // 交織效果（真交叉檢測）
+    weave: {
+      enabled: true,              // 是否啟用交織
+      amplitude: 0.25,            // Z 軸交織振幅
+      crossThreshold: 0.3,        // Y 差距閾值：低於此值視為「交叉區域」
+      cycleLength: 25             // 每 N 個 segment 切換前後順序
     }
   },
 
@@ -240,6 +251,16 @@ export const VISUAL_CONFIG = {
     // 動態調整
     activityInfluence: 0.2,       // 活躍度對強度的影響
     tensionInfluence: 0.1         // 張力對半徑的影響
+  },
+
+  // 色散效果 (Chromatic Aberration)
+  chromaticAberration: {
+    enabled: true,                // 是否啟用
+    baseOffset: 0.002,            // 基礎偏移量
+    maxOffset: 0.008,             // 最大偏移量（高張力時）
+    radialIntensity: 0.6,         // 徑向強度（0=均勻, 1=邊緣最強）
+    // 動態調整
+    tensionInfluence: 0.8         // 張力對色散強度的影響（0-1）
   },
 
   // 相機

@@ -6,10 +6,10 @@ const noise3D = createNoise3D()
 const noise4D = createNoise4D()
 
 /**
- * 創建絲帶曲線路徑
- * 使用 noise 生成有機的 3D 曲線
+ * 創建基礎絲帶點（不含交織偏移）
+ * @returns {THREE.Vector3[]} 點陣列
  */
-function createRibbonCurve(config, sentiment, time) {
+function createBaseRibbonPoints(config, sentiment, time) {
   const {
     segments,
     length,
@@ -30,13 +30,11 @@ function createRibbonCurve(config, sentiment, time) {
     const t = i / segments
     const x = (t - 0.5) * length
 
-    // 使用 4D noise 讓曲線隨時間演化
     const noiseTime = time * params.speed * noiseTimeScale
     const nx = noise4D(x * noiseScale, 0, config.phase, noiseTime) * waveAmplitude * params.amplitude
     const ny = noise4D(x * noiseScale, 1, config.phase, noiseTime) * waveAmplitude * params.amplitude * yAmplitudeRatio
     const nz = noise4D(x * noiseScale, 2, config.phase, noiseTime) * waveAmplitude * params.amplitude * zAmplitudeRatio
 
-    // 加上基礎位置偏移
     const baseY = config.position.y + Math.sin(t * Math.PI * params.frequency + config.phase) * baseYSinAmplitude
     const baseZ = config.position.z + Math.cos(t * Math.PI * 0.5 + config.phase) * baseZCosAmplitude
 
@@ -47,7 +45,118 @@ function createRibbonCurve(config, sentiment, time) {
     ))
   }
 
-  return new THREE.CatmullRomCurve3(points)
+  return points
+}
+
+/**
+ * 交叉檢測並應用 Z 軸偏移
+ * 當兩條絲帶的 Y 差距小於閾值時，判定為交叉區域
+ * 根據 segment 位置輪替決定誰在前誰在後
+ */
+function applyWeaveOffsets(allPoints) {
+  const { weave } = VISUAL_CONFIG.ribbon
+  if (!weave.enabled) return allPoints
+
+  const segments = allPoints[0].length
+  const threshold = weave.crossThreshold
+  const zOffset = weave.amplitude
+  const cycleLength = weave.cycleLength
+
+  // 複製點陣列
+  const result = allPoints.map(points =>
+    points.map(p => p.clone())
+  )
+
+  // 對每個 segment 檢測交叉
+  for (let i = 0; i < segments; i++) {
+    // 檢測三對組合：0-1, 0-2, 1-2
+    const pairs = [[0, 1], [0, 2], [1, 2]]
+
+    for (const [a, b] of pairs) {
+      const yA = result[a][i].y
+      const yB = result[b][i].y
+      const yDiff = Math.abs(yA - yB)
+
+      if (yDiff < threshold) {
+        // 交叉區域：決定前後順序
+        // 使用 segment 位置 + 配對索引來輪替
+        const cyclePos = Math.floor(i / cycleLength)
+        const shouldABeInFront = ((a + b + cyclePos) % 2 === 0)
+
+        // 平滑過渡因子：越接近 threshold 邊緣，偏移越弱
+        const smoothFactor = 1 - (yDiff / threshold)
+        const offset = zOffset * smoothFactor
+
+        if (shouldABeInFront) {
+          result[a][i].z += offset
+          result[b][i].z -= offset
+        } else {
+          result[a][i].z -= offset
+          result[b][i].z += offset
+        }
+      }
+    }
+  }
+
+  return result
+}
+
+/**
+ * 批次更新三條絲帶（含真交叉檢測）
+ */
+export function updateRibbonsWithWeave(ribbons, time) {
+  const { segments, radius, radialSegments, breathe, weave } = VISUAL_CONFIG.ribbon
+
+  // 節流控制
+  const now = time
+  const lastUpdate = ribbons[0]?.userData.lastGeometryUpdate || 0
+  if (now - lastUpdate < GEOMETRY_UPDATE_INTERVAL) {
+    // 只更新呼吸效果
+    ribbons.forEach(ribbon => {
+      const { config } = ribbon.userData
+      const breatheValue = Math.sin(time * breathe.frequency + config.phase) * breathe.amplitude + breathe.baseline
+      const color = ribbon.userData.baseColor
+      ribbon.material.color.setHSL(color.h / 360, color.s, color.l * breatheValue)
+    })
+    return
+  }
+
+  // 1. 為每條絲帶計算基礎點
+  const allBasePoints = ribbons.map(ribbon => {
+    const { config, sentiment } = ribbon.userData
+    return createBaseRibbonPoints(config, sentiment, time)
+  })
+
+  // 2. 應用交織偏移（真交叉檢測）
+  const allFinalPoints = weave.enabled
+    ? applyWeaveOffsets(allBasePoints)
+    : allBasePoints
+
+  // 3. 更新每條絲帶的幾何
+  ribbons.forEach((ribbon, index) => {
+    const points = allFinalPoints[index]
+    const curve = new THREE.CatmullRomCurve3(points)
+
+    const newGeometry = new THREE.TubeGeometry(curve, segments, radius, radialSegments, false)
+    ribbon.geometry.dispose()
+    ribbon.geometry = newGeometry
+
+    ribbon.userData.curve = curve
+    ribbon.userData.lastGeometryUpdate = now
+
+    // 呼吸效果
+    const { config } = ribbon.userData
+    const breatheValue = Math.sin(time * breathe.frequency + config.phase) * breathe.amplitude + breathe.baseline
+    const color = ribbon.userData.baseColor
+    ribbon.material.color.setHSL(color.h / 360, color.s, color.l * breatheValue)
+  })
+}
+
+/**
+ * 創建絲帶曲線路徑（保留給初始化使用）
+ */
+function createRibbonCurve(config, sentiment, time) {
+  return new THREE.CatmullRomCurve3(createBaseRibbonPoints(config, sentiment, time))
 }
 
 /**

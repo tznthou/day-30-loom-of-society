@@ -505,6 +505,76 @@
     /* ==========================================
        解讀指南面板
        ========================================== */
+    /* 全螢幕按鈕 */
+    #fullscreen-btn {
+      position: fixed;
+      top: 24px;
+      right: 175px;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid var(--border-light);
+      background: rgba(0, 0, 0, 0.4);
+      color: var(--text-secondary);
+      font-size: 16px;
+      cursor: pointer;
+      z-index: 2100;
+      opacity: 1;
+      transition: all var(--timing-quick) ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #fullscreen-btn:hover {
+      border-color: var(--text-tertiary);
+      color: var(--text-primary);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    .fullscreen-icon {
+      font-size: 14px;
+    }
+
+    /* 全螢幕模式：隱藏 UI */
+    body.exhibition-mode #hud,
+    body.exhibition-mode #info-btn,
+    body.exhibition-mode #fullscreen-btn,
+    body.exhibition-mode #controls-hint {
+      opacity: 0 !important;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    /* 全螢幕模式下的退出提示 */
+    #exit-hint {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 8px 16px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      color: var(--text-tertiary);
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+      z-index: 2100;
+    }
+
+    body.exhibition-mode #exit-hint {
+      opacity: 1;
+      animation: fade-out-hint 0.5s ease 3s forwards;
+    }
+
+    @keyframes fade-out-hint {
+      to { opacity: 0; }
+    }
+
     #info-btn {
       position: fixed;
       top: 24px;
@@ -861,6 +931,14 @@
     drag to rotate · scroll to zoom
   </div>
 
+  <!-- 全螢幕按鈕 -->
+  <button id="fullscreen-btn" title="Exhibition Mode">
+    <span class="fullscreen-icon">⛶</span>
+  </button>
+
+  <!-- 全螢幕退出提示 -->
+  <div id="exit-hint">Press ESC or double-click to exit</div>
+
   <!-- 資訊按鈕 -->
   <button id="info-btn">
     <span class="info-icon">i</span>
@@ -998,6 +1076,76 @@
     // ESC 關閉
     document.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') closeGuide();
+    });
+  </script>
+
+  <!-- 全螢幕展覽模式控制 -->
+  <script>
+    const fullscreenBtn = document.getElementById('fullscreen-btn');
+    const canvasContainer = document.getElementById('canvas-container');
+
+    // 進入全螢幕展覽模式
+    function enterExhibitionMode() {
+      const elem = document.documentElement;
+
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else if (elem.msRequestFullscreen) {
+        elem.msRequestFullscreen();
+      }
+
+      document.body.classList.add('exhibition-mode');
+    }
+
+    // 退出全螢幕展覽模式
+    function exitExhibitionMode() {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      } else if (document.msExitFullscreen) {
+        document.msExitFullscreen();
+      }
+
+      document.body.classList.remove('exhibition-mode');
+    }
+
+    // 切換全螢幕
+    function toggleExhibitionMode() {
+      const isFullscreen = document.fullscreenElement ||
+                          document.webkitFullscreenElement ||
+                          document.msFullscreenElement;
+
+      if (isFullscreen) {
+        exitExhibitionMode();
+      } else {
+        enterExhibitionMode();
+      }
+    }
+
+    // 監聽全螢幕變化（處理用戶按 ESC 退出）
+    document.addEventListener('fullscreenchange', () => {
+      if (!document.fullscreenElement) {
+        document.body.classList.remove('exhibition-mode');
+      }
+    });
+
+    document.addEventListener('webkitfullscreenchange', () => {
+      if (!document.webkitFullscreenElement) {
+        document.body.classList.remove('exhibition-mode');
+      }
+    });
+
+    // 按鈕點擊
+    fullscreenBtn.addEventListener('click', enterExhibitionMode);
+
+    // 雙擊退出
+    canvasContainer.addEventListener('dblclick', () => {
+      if (document.body.classList.contains('exhibition-mode')) {
+        exitExhibitionMode();
+      }
     });
   </script>
 </body>

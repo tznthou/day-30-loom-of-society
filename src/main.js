@@ -8,7 +8,7 @@ import {
   CONTROLS_CONFIG,
   TIMING
 } from './config.js'
-import { createRibbon, updateRibbon, createBackgroundRibbons, updateBackgroundRibbons } from './ribbon.js'
+import { createRibbon, updateRibbon, updateRibbonsWithWeave, createBackgroundRibbons, updateBackgroundRibbons } from './ribbon.js'
 import { createRibbonParticles, updateParticles, createStarDust, updateStarDust } from './particles.js'
 import { createPostProcessing, updateBloomParams } from './bloom.js'
 import { startSentimentPolling } from './api.js'
@@ -251,14 +251,14 @@ function animate() {
     updateBackgroundRibbons(backgroundRibbons, time)
   }
 
-  // 更新主絲帶
-  ribbons.forEach(ribbon => updateRibbon(ribbon, time))
+  // 更新主絲帶（批次處理 + 真交叉檢測）
+  updateRibbonsWithWeave(ribbons, time)
 
   // 更新粒子
   particles.forEach(p => updateParticles(p, time))
 
-  // 動態 Bloom
-  updateBloomParams(postProcessing.bloomPass, currentSentiment)
+  // 動態後處理（Bloom + Chromatic Aberration）
+  updateBloomParams(postProcessing.bloomPass, currentSentiment, postProcessing.chromaticPass)
 
   // 渲染（使用後處理）
   postProcessing.composer.render()

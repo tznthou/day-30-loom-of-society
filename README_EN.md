@@ -299,10 +299,19 @@ This is not an end, but the beginning of another journey.
 
 - [x] Real-time data integration → HN, TWSE, Google News TW (2026-01-14 updated)
 - [x] Sentiment analysis NLP engine
-- [ ] Ribbon interweaving physics simulation
-- [ ] Chromatic aberration effect
+- [x] Ribbon interweaving physics simulation ✨ 2026-01-15
+- [x] Chromatic aberration effect ✨ 2026-01-14
 - [ ] Ambient sound response
-- [ ] Full-screen exhibition mode
+- [x] Full-screen exhibition mode ✨ 2026-01-15
+
+### Difficulty Assessment (2026-01-14)
+
+| Feature | Difficulty | Est. Time | Feasibility | Notes |
+|---------|------------|-----------|-------------|-------|
+| Ribbon interweaving physics | ★★★★☆ | 1-2 days (pseudo) / 1-2 weeks (real) | Pseudo feasible | Procedural approach achieves visual effect quickly; true physics needs Verlet Integration |
+| Chromatic aberration | ★★☆☆☆ | 3-4 hours | ✅ Fully feasible | Custom ShaderPass, dynamically adjusts with tension |
+| Ambient sound response | ★★★☆☆ | 1 day | ✅ Feasible | Web Audio API frequency analysis, map to visual params |
+| Full-screen exhibition mode | ★☆☆☆☆ | 1-2 hours | ✅ Fully feasible | Fullscreen API + hide UI elements |
 
 ---
 

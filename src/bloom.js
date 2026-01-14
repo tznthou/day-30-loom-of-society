@@ -2,14 +2,16 @@ import * as THREE from 'three'
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js'
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js'
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js'
 import { VISUAL_CONFIG } from './config.js'
+import { ChromaticAberrationShader } from './chromaticAberration.js'
 
 /**
  * 創建後處理效果鏈
  */
 export function createPostProcessing(renderer, scene, camera) {
-  const { bloom } = VISUAL_CONFIG
+  const { bloom, chromaticAberration } = VISUAL_CONFIG
 
   // Effect Composer
   const composer = new EffectComposer(renderer)
@@ -27,6 +29,18 @@ export function createPostProcessing(renderer, scene, camera) {
   )
   composer.addPass(bloomPass)
 
+  // Chromatic Aberration Pass - 色散效果
+  let chromaticPass = null
+  if (chromaticAberration.enabled) {
+    chromaticPass = new ShaderPass(ChromaticAberrationShader)
+    chromaticPass.uniforms.offset.value.set(
+      chromaticAberration.baseOffset,
+      chromaticAberration.baseOffset
+    )
+    chromaticPass.uniforms.radialIntensity.value = chromaticAberration.radialIntensity
+    composer.addPass(chromaticPass)
+  }
+
   // 輸出 Pass（色彩空間轉換）
   const outputPass = new OutputPass()
   composer.addPass(outputPass)
@@ -34,6 +48,7 @@ export function createPostProcessing(renderer, scene, camera) {
   return {
     composer,
     bloomPass,
+    chromaticPass,
     resize: (width, height) => {
       composer.setSize(width, height)
       bloomPass.resolution.set(width, height)
@@ -42,10 +57,10 @@ export function createPostProcessing(renderer, scene, camera) {
 }
 
 /**
- * 動態調整 Bloom 參數（根據情緒變化，保持柔和）
+ * 動態調整後處理參數（根據情緒變化）
  */
-export function updateBloomParams(bloomPass, sentiment) {
-  const { bloom } = VISUAL_CONFIG
+export function updateBloomParams(bloomPass, sentiment, chromaticPass = null) {
+  const { bloom, chromaticAberration } = VISUAL_CONFIG
 
   // 計算平均活躍度和張力
   const avgActivity = (sentiment.tech.activity + sentiment.finance.activity + sentiment.society.activity) / 3
@@ -54,4 +69,13 @@ export function updateBloomParams(bloomPass, sentiment) {
   // 高活躍度時 Bloom 稍強，高張力時擴散半徑稍大
   bloomPass.strength = bloom.strength + avgActivity * bloom.activityInfluence
   bloomPass.radius = bloom.radius + avgTension * bloom.tensionInfluence
+
+  // 動態色散：張力越高，色散越強
+  if (chromaticPass && chromaticAberration.enabled) {
+    const tensionFactor = avgTension * chromaticAberration.tensionInfluence
+    const dynamicOffset = chromaticAberration.baseOffset +
+      (chromaticAberration.maxOffset - chromaticAberration.baseOffset) * tensionFactor
+
+    chromaticPass.uniforms.offset.value.set(dynamicOffset, dynamicOffset)
+  }
 }
