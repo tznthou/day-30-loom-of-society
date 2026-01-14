@@ -9,7 +9,7 @@ import rateLimit from 'express-rate-limit'
 import { fetchMarketIndex, marketToSentiment } from './services/twse.js'
 import { analyzeText } from './services/sentiment.js'
 import { analyzeHackerNews } from './services/hackernews.js'
-import { analyzeReddit } from './services/reddit.js'
+import { analyzePTT } from './services/ptt.js'
 
 const app = express()
 const PORT = process.env.PORT || 3001
@@ -150,7 +150,7 @@ async function fetchFreshData() {
   const [marketData, techSentiment, societySentiment] = await Promise.all([
     fetchMarketIndex(),
     analyzeHackerNews(),
-    analyzeReddit()
+    analyzePTT()
   ])
 
   const financeSentiment = marketToSentiment(marketData)
