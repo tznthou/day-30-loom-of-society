@@ -146,8 +146,10 @@ day-30-loom-of-society/
 │   └── services/
 │       ├── sentiment.js    # 情緒分析
 │       ├── hackernews.js   # HN API
-│       ├── reddit.js       # Reddit API
+│       ├── googlenews.js   # Google News TW RSS (2026-01-14 新增)
 │       ├── twse.js         # 台股 API
+│       ├── reddit.js       # (已棄用，雲端 IP 被封鎖)
+│       ├── ptt.js          # (已棄用，雲端 IP 被封鎖)
 │       └── utils.js        # 共用工具
 ├── assets/
 │   └── preview.webp        # 預覽圖
@@ -224,6 +226,7 @@ NODE_ENV=production
 | `vite: not found` | vite 原在 devDependencies，生產環境跳過安裝 | 已移至 dependencies |
 | CORS 500 Error | 直接訪問 API（無 Origin header）被拒絕 | 已修復：允許無 Origin 請求 |
 | 前端連 localhost | Vite 環境變數是 build-time，非 runtime | 已 hardcode fallback URL |
+| Reddit/PTT fallback | 雲端 IP 被網站封鎖，爬蟲返回空資料 | 改用 Google News RSS（公開 API 不封 IP） |
 
 ### 環境變數重點
 
@@ -253,15 +256,17 @@ NODE_ENV=production
 
 ### 為什麼是這三個來源？
 
-選擇 Hacker News、台股加權指數、Reddit，不是隨機的決定。這三個來源恰好對應社會數據的三大支柱：
+選擇 Hacker News、台股加權指數、Google News 台灣，不是隨機的決定。這三個來源恰好對應社會數據的三大支柱：
 
 | 來源 | 維度 | 代表意義 |
 |------|------|---------|
 | **Hacker News** | 科技 | 技術社群的前沿脈動。這裡的討論往往預示著未來的趨勢——新語言、新框架、新思維。當 HN 首頁充斥著裁員新聞，你知道科技業正在經歷寒冬。 |
 | **台股加權指數** | 金融 | 最直接的經濟體溫計。股市是群眾心理的放大器——貪婪與恐懼在這裡赤裸裸地展現。漲跌幅度直接反映集體的樂觀或悲觀。 |
-| **Reddit** | 社會 | 當代最大的公共論壇。從政治到生活，從嚴肅到荒謬，這裡是真實社會輿論的縮影。不同於演算法餵養的社群媒體，Reddit 的討論更接近真實的公眾情緒。 |
+| **Google News 台灣** | 社會 | 台灣主流媒體的即時縮影。透過 RSS 抓取焦點新聞標題，反映當下台灣社會最關注的議題與情緒氛圍。 |
 
-這三條絲帶，代表的是三種不同的「聲音」：技術菁英的理性討論、資本市場的貪婪與恐懼、普羅大眾的喜怒哀樂。當它們交織在一起，就是社會的完整面貌。
+這三條絲帶，代表的是三種不同的「聲音」：技術菁英的理性討論、資本市場的貪婪與恐懼、台灣社會的即時脈動。當它們交織在一起，就是社會的完整面貌。
+
+> **2026-01-14 更新**：原本計畫使用 Reddit 作為社會維度的資料來源，但部署至 Zeabur 後發現 Reddit 會封鎖雲端 IP（返回 fallback 狀態）。嘗試改用 PTT 八卦版也遇到相同問題。最終改用 Google News 台灣 RSS，不僅解決了 IP 封鎖問題，也讓資料更貼近台灣在地視角。
 
 ### 關於「情緒」
 
@@ -290,7 +295,7 @@ NODE_ENV=production
 
 ## 未來擴展
 
-- [x] 接入即時數據 ~~（PTT、新聞、股市）~~ → HN、Reddit、TWSE
+- [x] 接入即時數據 → HN、TWSE、Google News TW (2026-01-14 更新)
 - [x] 情緒分析 NLP 引擎
 - [ ] 絲帶交織物理模擬
 - [ ] 色散效果 (Chromatic Aberration)
@@ -308,6 +313,12 @@ NODE_ENV=production
 - ✅ 需標示原作者
 - ❌ 禁止商業使用
 - 🔄 衍生作品需採用相同授權
+
+---
+
+## 作者
+
+子超 - [tznthou@gmail.com](mailto:tznthou@gmail.com)
 
 ---
 
