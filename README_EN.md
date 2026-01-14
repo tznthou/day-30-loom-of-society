@@ -146,8 +146,10 @@ day-30-loom-of-society/
 │   └── services/
 │       ├── sentiment.js    # Sentiment analysis
 │       ├── hackernews.js   # HN API
-│       ├── reddit.js       # Reddit API
+│       ├── googlenews.js   # Google News TW RSS (2026-01-14)
 │       ├── twse.js         # Taiwan stock API
+│       ├── reddit.js       # (Deprecated, cloud IP blocked)
+│       ├── ptt.js          # (Deprecated, cloud IP blocked)
 │       └── utils.js        # Shared utilities
 ├── assets/
 │   └── preview.webp        # Preview image
@@ -253,21 +255,35 @@ In this digital age, we are constantly "weaving" — posting, commenting, tradin
 
 ### Why These Three Sources?
 
-Choosing Hacker News, Taiwan Stock Index, and Reddit was not a random decision. These three sources correspond precisely to the three pillars of social data:
+Choosing Hacker News, Taiwan Stock Index, and Google News Taiwan was not a random decision. These three sources correspond precisely to the three pillars of social data:
 
 | Source | Dimension | Significance |
 |--------|-----------|--------------|
 | **Hacker News** | Technology | The cutting edge of the tech community. Discussions here often foreshadow future trends — new languages, new frameworks, new paradigms. When HN's front page is flooded with layoff news, you know tech is in a winter. |
 | **Taiwan Stock Index** | Finance | The most direct economic thermometer. The stock market is an amplifier of crowd psychology — greed and fear are laid bare here. Price movements directly reflect collective optimism or pessimism. |
-| **Reddit** | Society | The largest public forum of our time. From politics to daily life, from serious to absurd, this is a microcosm of real public discourse. Unlike algorithm-curated social media, Reddit discussions are closer to genuine public sentiment. |
+| **Google News Taiwan** | Society | A real-time snapshot of Taiwan's mainstream media. By analyzing headline sentiment from focus news, it reflects the current concerns and emotional atmosphere of Taiwanese society. |
 
-These three ribbons represent three different "voices": the rational discourse of tech elites, the greed and fear of capital markets, and the joys and sorrows of the general public. When they interweave, they form the complete face of society.
+These three ribbons represent three different "voices": the rational discourse of tech elites, the greed and fear of capital markets, and the pulse of Taiwan's current events. When they interweave, they form the complete face of society.
+
+> **2026-01-14 Update**: Originally planned to use Reddit as the society data source, but discovered that Reddit blocks cloud IPs after deploying to Zeabur (returns fallback status). Attempted to use PTT Gossiping board as an alternative, but encountered the same issue. Finally switched to Google News Taiwan RSS, which not only solved the IP blocking problem but also provides a more localized Taiwan perspective.
 
 ### On "Emotion"
 
 Emotion is the hardest thing to quantify. Unlike temperature or price, it has no precise number.
 
 But emotion is real. When society feels anxious, you can sense the tension in the air. When there's collective joy, you feel the energy. This project's ambition is to transform that "atmosphere" into visuals.
+
+#### Sentiment Analysis Mechanism
+
+This project uses **keyword matching** for sentiment analysis, rather than complex machine learning models. This is an intentional design choice:
+
+- **Transparent & explainable**: Every sentiment judgment can be traced back to specific keywords
+- **Real-time response**: No GPU or external API needed, runs purely in JavaScript
+- **Extensible**: New keywords can be added anytime to improve accuracy
+
+Keywords are organized into three categories (tech, finance, society), each with positive and negative word lists. On 2026-01-14, Taiwan news-specific terms were added, including political (impeachment, recall), disaster (typhoon, earthquake), and social event (fraud, car accident) keywords to improve Google News headline matching.
+
+> To add new keywords, edit the `POSITIVE_KEYWORDS` and `NEGATIVE_KEYWORDS` objects in `backend/services/sentiment.js`.
 
 ### The End of Thirty Days
 
@@ -281,7 +297,7 @@ This is not an end, but the beginning of another journey.
 
 ## Future Expansion
 
-- [x] Real-time data integration ~~(PTT, news, stock market)~~ → HN, Reddit, TWSE
+- [x] Real-time data integration → HN, TWSE, Google News TW (2026-01-14 updated)
 - [x] Sentiment analysis NLP engine
 - [ ] Ribbon interweaving physics simulation
 - [ ] Chromatic aberration effect
