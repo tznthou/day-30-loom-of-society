@@ -313,6 +313,42 @@ This is not an end, but the beginning of another journey.
 | Ambient sound response | ★★★☆☆ | 1 day | ✅ Feasible | Web Audio API frequency analysis, map to visual params |
 | Full-screen exhibition mode | ★☆☆☆☆ | 1-2 hours | ✅ Fully feasible | Fullscreen API + hide UI elements |
 
+### Future Development Possibilities (2026-01-15 Update)
+
+Based on cost-benefit analysis and project positioning, here are potential development directions:
+
+#### 🟢 High Priority (Low cost, High impact)
+
+| Feature | Difficulty | Est. Time | Description |
+|---------|------------|-----------|-------------|
+| **Film Grain + Vignette Post-processing** | ★☆☆☆☆ | 30 min | Two ShaderPasses for film texture and focus vignette |
+| **Dynamic Ribbon Thickness** | ★★☆☆☆ | 1-2 hours | Thicker/sharper when tense, thinner/softer when relaxed |
+
+#### 🟡 Medium Priority (Depends on positioning)
+
+| Feature | Difficulty | Est. Time | Description |
+|---------|------------|-----------|-------------|
+| **Ambient Sound Response** | ★★★☆☆ | Half day~1 day | Web Audio API spectrum analysis, makes the piece "come alive" |
+| **Hover Tooltip** | ★★★☆☆ | 3-4 hours | Raycaster ribbon selection, display real-time sentiment values |
+| **PWA Offline Support** | ★★☆☆☆ | 2-3 hours | Service Worker caching for static resources |
+
+#### 🔴 Long-term Considerations
+
+| Direction | Difficulty | Description |
+|-----------|------------|-------------|
+| **VR/AR Immersion** | ★★★★☆ | WebXR, 360° viewing from within the ribbons |
+| **Timeline Playback** | ★★★★☆ | Backend records historical data, time-travel feature |
+| **Multi-screen Sync** | ★★★☆☆ | WebSocket sync for museum-scale projections |
+
+#### Positioning Decision
+
+This project can evolve in two directions:
+
+- **A. Pure Art Installation** → Add Film Grain, sound response, VR immersion
+- **B. Information Dashboard** → Add Tooltip, news ticker, more data sources
+
+Current design leans toward **A (Pure Art Installation)**. Recommend maintaining this direction.
+
 ---
 
 ## License

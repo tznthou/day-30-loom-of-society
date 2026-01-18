@@ -198,35 +198,3 @@ export function analyzeText(text, category = 'society') {
   }
 }
 
-/**
- * 合併多個情緒分數（取平均值）
- *
- * @param {SentimentScore[]} sentiments - 情緒分數陣列
- * @returns {SentimentScore} 合併後的情緒分數（不含 debug）
- *
- * @example
- * const merged = mergeSentiments([
- *   { tension: 0.3, buoyancy: 0.7, activity: 0.5 },
- *   { tension: 0.5, buoyancy: 0.5, activity: 0.3 }
- * ])
- * // { tension: 0.4, buoyancy: 0.6, activity: 0.4 }
- */
-export function mergeSentiments(sentiments) {
-  if (!sentiments || sentiments.length === 0) {
-    return { tension: 0.5, buoyancy: 0.5, activity: 0.3 }
-  }
-
-  const sum = sentiments.reduce((acc, s) => ({
-    tension: acc.tension + (s.tension || 0.5),
-    buoyancy: acc.buoyancy + (s.buoyancy || 0.5),
-    activity: acc.activity + (s.activity || 0.3)
-  }), { tension: 0, buoyancy: 0, activity: 0 })
-
-  const count = sentiments.length
-
-  return {
-    tension: parseFloat((sum.tension / count).toFixed(3)),
-    buoyancy: parseFloat((sum.buoyancy / count).toFixed(3)),
-    activity: parseFloat((sum.activity / count).toFixed(3))
-  }
-}

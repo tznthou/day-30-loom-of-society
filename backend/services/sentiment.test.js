@@ -7,7 +7,7 @@
 
 import { describe, it } from 'node:test'
 import assert from 'node:assert'
-import { analyzeText, mergeSentiments } from './sentiment.js'
+import { analyzeText } from './sentiment.js'
 
 describe('analyzeText', () => {
   describe('正面情緒', () => {
@@ -106,40 +106,3 @@ describe('analyzeText', () => {
   })
 })
 
-describe('mergeSentiments', () => {
-  it('應正確計算平均值', () => {
-    const result = mergeSentiments([
-      { tension: 0.3, buoyancy: 0.7, activity: 0.5 },
-      { tension: 0.5, buoyancy: 0.5, activity: 0.3 }
-    ])
-
-    assert.strictEqual(result.tension, 0.4)
-    assert.strictEqual(result.buoyancy, 0.6)
-    assert.strictEqual(result.activity, 0.4)
-  })
-
-  it('空陣列應返回中性值', () => {
-    const result = mergeSentiments([])
-
-    assert.strictEqual(result.tension, 0.5)
-    assert.strictEqual(result.buoyancy, 0.5)
-    assert.strictEqual(result.activity, 0.3)
-  })
-
-  it('null 輸入應返回中性值', () => {
-    const result = mergeSentiments(null)
-
-    assert.strictEqual(result.tension, 0.5)
-    assert.strictEqual(result.buoyancy, 0.5)
-  })
-
-  it('單一項目應返回該項目的值', () => {
-    const result = mergeSentiments([
-      { tension: 0.2, buoyancy: 0.8, activity: 0.6 }
-    ])
-
-    assert.strictEqual(result.tension, 0.2)
-    assert.strictEqual(result.buoyancy, 0.8)
-    assert.strictEqual(result.activity, 0.6)
-  })
-})

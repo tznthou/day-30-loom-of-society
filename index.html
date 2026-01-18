@@ -91,8 +91,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: safe center;
       padding: 2rem;
+      overflow-y: auto;
       transition: opacity var(--timing-slow) ease-out, transform var(--timing-slow) ease-out;
     }
 
@@ -405,14 +406,12 @@
 
     /* 底部提示 */
     .intro-hint {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
       font-family: 'SF Mono', 'Consolas', monospace;
       font-size: 0.7rem;
       color: var(--text-subtle);
       letter-spacing: 0.1em;
+      margin-top: 3rem;
+      padding-bottom: 2rem;
     }
 
     /* ==========================================
@@ -906,10 +905,10 @@
       <button class="intro-enter" id="enter-btn">
         Enter the Loom
       </button>
-    </div>
 
-    <div class="intro-hint">
-      Best experienced in fullscreen with sound off
+      <div class="intro-hint">
+        Best experienced in fullscreen with sound off
+      </div>
     </div>
   </div>
 

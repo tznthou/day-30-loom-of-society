@@ -88,6 +88,7 @@ export async function analyzeGoogleNews() {
     source: 'googlenews',
     region: 'TW',
     status: 'live',
-    articleCount: titles.length
+    articleCount: titles.length,
+    debug: undefined
   }
 }

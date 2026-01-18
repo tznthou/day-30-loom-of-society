@@ -61,10 +61,11 @@ export function createPostProcessing(renderer, scene, camera) {
  */
 export function updateBloomParams(bloomPass, sentiment, chromaticPass = null) {
   const { bloom, chromaticAberration } = VISUAL_CONFIG
+  const { tech, finance, society } = sentiment
 
   // 計算平均活躍度和張力
-  const avgActivity = (sentiment.tech.activity + sentiment.finance.activity + sentiment.society.activity) / 3
-  const avgTension = (sentiment.tech.tension + sentiment.finance.tension + sentiment.society.tension) / 3
+  const avgActivity = (tech.activity + finance.activity + society.activity) / 3
+  const avgTension = (tech.tension + finance.tension + society.tension) / 3
 
   // 高活躍度時 Bloom 稍強，高張力時擴散半徑稍大
   bloomPass.strength = bloom.strength + avgActivity * bloom.activityInfluence

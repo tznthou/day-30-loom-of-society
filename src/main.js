@@ -8,7 +8,7 @@ import {
   CONTROLS_CONFIG,
   TIMING
 } from './config.js'
-import { createRibbon, updateRibbon, updateRibbonsWithWeave, createBackgroundRibbons, updateBackgroundRibbons } from './ribbon.js'
+import { createRibbon, updateRibbonsWithWeave, createBackgroundRibbons, updateBackgroundRibbons } from './ribbon.js'
 import { createRibbonParticles, updateParticles, createStarDust, updateStarDust } from './particles.js'
 import { createPostProcessing, updateBloomParams } from './bloom.js'
 import { startSentimentPolling } from './api.js'

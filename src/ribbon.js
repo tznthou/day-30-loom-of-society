@@ -152,12 +152,6 @@ export function updateRibbonsWithWeave(ribbons, time) {
   })
 }
 
-/**
- * 創建絲帶曲線路徑（保留給初始化使用）
- */
-function createRibbonCurve(config, sentiment, time) {
-  return new THREE.CatmullRomCurve3(createBaseRibbonPoints(config, sentiment, time))
-}
 
 /**
  * 創建絲帶 Mesh
@@ -166,7 +160,7 @@ export function createRibbon(config, sentiment) {
   const { segments, radius, radialSegments, opacity } = VISUAL_CONFIG.ribbon
 
   // 初始曲線
-  const curve = createRibbonCurve(config, sentiment, 0)
+  const curve = new THREE.CatmullRomCurve3(createBaseRibbonPoints(config, sentiment, 0))
 
   // TubeGeometry - 管狀幾何
   const geometry = new THREE.TubeGeometry(curve, segments, radius, radialSegments, false)
@@ -198,42 +192,8 @@ export function createRibbon(config, sentiment) {
   return mesh
 }
 
-// C02 平衡修復：降低頻率但保持流暢
-// 原本每幀 (16ms) → 改為 25ms (40fps)，GC 壓力減少 40%，視覺仍流暢
+// Geometry 更新節流間隔
 const GEOMETRY_UPDATE_INTERVAL = 25
-
-/**
- * 更新絲帶動畫
- */
-export function updateRibbon(ribbon, time) {
-  const { config, sentiment } = ribbon.userData
-  const { segments, radius, radialSegments, breathe } = VISUAL_CONFIG.ribbon
-
-  // 只在間隔內更新 Geometry，減少每秒建立的物件數量
-  const lastGeometryUpdate = ribbon.userData.lastGeometryUpdate || 0
-  if (time - lastGeometryUpdate >= GEOMETRY_UPDATE_INTERVAL) {
-    // 創建新曲線
-    const curve = createRibbonCurve(config, sentiment, time)
-
-    // 更新幾何
-    const newGeometry = new THREE.TubeGeometry(curve, segments, radius, radialSegments, false)
-    ribbon.geometry.dispose()
-    ribbon.geometry = newGeometry
-
-    // 存儲新曲線供粒子使用
-    ribbon.userData.curve = curve
-    ribbon.userData.lastGeometryUpdate = time
-  }
-
-  // 微妙的顏色呼吸效果（每幀更新，成本低）
-  const breatheValue = Math.sin(time * breathe.frequency + config.phase) * breathe.amplitude + breathe.baseline
-  const color = ribbon.userData.baseColor
-  ribbon.material.color.setHSL(
-    color.h / 360,
-    color.s,
-    color.l * breatheValue
-  )
-}
 
 /**
  * 創建遠景細絲群
@@ -310,7 +270,7 @@ export function updateBackgroundRibbons(group, time) {
 
   const bg = VISUAL_CONFIG.backgroundRibbons
 
-  group.children.forEach((mesh, index) => {
+  group.children.forEach((mesh) => {
     const { phase, speed, originalPoints } = mesh.userData
 
     // 緩慢波動
