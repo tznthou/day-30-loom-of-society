@@ -137,20 +137,22 @@ day-30-loom-of-society/
 │   ├── config.js           # 情緒參數與視覺配置
 │   ├── ribbon.js           # 絲帶幾何與動畫
 │   ├── particles.js        # 能量粒子與星塵
-│   ├── bloom.js            # 後處理效果
+│   ├── bloom.js            # 後處理效果（Bloom）
+│   ├── chromaticAberration.js  # 後處理效果（色散）
 │   └── api.js              # API 串接
 ├── backend/
 │   ├── server.js           # Express 伺服器
 │   ├── package.json        # 後端依賴
 │   ├── .env.example        # 環境變數範本
 │   └── services/
-│       ├── sentiment.js    # 情緒分析
-│       ├── hackernews.js   # HN API
-│       ├── googlenews.js   # Google News TW RSS (2026-01-14 新增)
-│       ├── twse.js         # 台股 API
-│       ├── reddit.js       # (已棄用，雲端 IP 被封鎖)
-│       ├── ptt.js          # (已棄用，雲端 IP 被封鎖)
-│       └── utils.js        # 共用工具
+│       ├── sentiment.js       # 情緒分析
+│       ├── sentiment.test.js  # 情緒分析單元測試
+│       ├── hackernews.js      # HN API
+│       ├── googlenews.js      # Google News TW RSS
+│       ├── twse.js            # 台股 API
+│       ├── reddit.js          # (已棄用，雲端 IP 被封鎖)
+│       ├── ptt.js             # (已棄用，雲端 IP 被封鎖)
+│       └── utils.js           # 共用工具
 ├── assets/
 │   └── preview.webp        # 預覽圖
 ├── package.json
@@ -311,7 +313,6 @@ NODE_ENV=production
 - [x] 情緒分析 NLP 引擎
 - [x] 絲帶交織物理模擬 ✨ 2026-01-15
 - [x] 色散效果 (Chromatic Aberration) ✨ 2026-01-14
-- [ ] 環境音效響應
 - [x] 全螢幕展覽模式 ✨ 2026-01-15
 
 ### 難易度評估（2026-01-14）
@@ -320,7 +321,6 @@ NODE_ENV=production
 |------|------|----------|--------|------|
 | 絲帶交織物理模擬 | ★★★★☆ | 1-2 天（偽）/ 1-2 週（真） | 偽交織可行 | 程序化方案可快速達成視覺效果；真正物理模擬需 Verlet Integration |
 | 色散效果 | ★★☆☆☆ | 3-4 小時 | ✅ 完全可行 | 自製 ShaderPass，可動態根據 tension 調整強度 |
-| 環境音效響應 | ★★★☆☆ | 1 天 | ✅ 可行 | Web Audio API 分析頻譜，映射到視覺參數 |
 | 全螢幕展覽模式 | ★☆☆☆☆ | 1-2 小時 | ✅ 完全可行 | Fullscreen API + 隱藏 UI 元素 |
 
 ### 未來發展可能性（2026-01-15 更新）
@@ -338,7 +338,6 @@ NODE_ENV=production
 
 | 功能 | 難度 | 預估時間 | 說明 |
 |------|------|----------|------|
-| **環境音效響應** | ★★★☆☆ | 半天~1 天 | Web Audio API 分析頻譜，讓作品「活過來」 |
 | **懸停 Tooltip** | ★★★☆☆ | 3-4 小時 | Raycaster 選取絲帶，顯示即時情緒數值 |
 | **PWA 離線支援** | ★★☆☆☆ | 2-3 小時 | Service Worker 快取靜態資源 |
 
@@ -354,7 +353,7 @@ NODE_ENV=production
 
 此專案未來可往兩個方向發展：
 
-- **A. 純藝術裝置** → 加 Film Grain、音效響應、VR 沉浸
+- **A. 純藝術裝置** → 加 Film Grain、VR 沉浸
 - **B. 資訊儀表板** → 加 Tooltip、新聞 Ticker、更多數據源
 
 目前設計偏向 **A（純藝術裝置）**，建議維持此方向。

@@ -137,20 +137,22 @@ day-30-loom-of-society/
 │   ├── config.js           # Sentiment params & visual config
 │   ├── ribbon.js           # Ribbon geometry & animation
 │   ├── particles.js        # Energy particles & star dust
-│   ├── bloom.js            # Post-processing effects
+│   ├── bloom.js            # Post-processing (Bloom)
+│   ├── chromaticAberration.js  # Post-processing (Chromatic)
 │   └── api.js              # API integration
 ├── backend/
 │   ├── server.js           # Express server
 │   ├── package.json        # Backend dependencies
 │   ├── .env.example        # Environment variables template
 │   └── services/
-│       ├── sentiment.js    # Sentiment analysis
-│       ├── hackernews.js   # HN API
-│       ├── googlenews.js   # Google News TW RSS (2026-01-14)
-│       ├── twse.js         # Taiwan stock API
-│       ├── reddit.js       # (Deprecated, cloud IP blocked)
-│       ├── ptt.js          # (Deprecated, cloud IP blocked)
-│       └── utils.js        # Shared utilities
+│       ├── sentiment.js       # Sentiment analysis
+│       ├── sentiment.test.js  # Sentiment analysis unit tests
+│       ├── hackernews.js      # HN API
+│       ├── googlenews.js      # Google News TW RSS
+│       ├── twse.js            # Taiwan stock API
+│       ├── reddit.js          # (Deprecated, cloud IP blocked)
+│       ├── ptt.js             # (Deprecated, cloud IP blocked)
+│       └── utils.js           # Shared utilities
 ├── assets/
 │   └── preview.webp        # Preview image
 ├── package.json
@@ -301,7 +303,6 @@ This is not an end, but the beginning of another journey.
 - [x] Sentiment analysis NLP engine
 - [x] Ribbon interweaving physics simulation ✨ 2026-01-15
 - [x] Chromatic aberration effect ✨ 2026-01-14
-- [ ] Ambient sound response
 - [x] Full-screen exhibition mode ✨ 2026-01-15
 
 ### Difficulty Assessment (2026-01-14)
@@ -310,7 +311,6 @@ This is not an end, but the beginning of another journey.
 |---------|------------|-----------|-------------|-------|
 | Ribbon interweaving physics | ★★★★☆ | 1-2 days (pseudo) / 1-2 weeks (real) | Pseudo feasible | Procedural approach achieves visual effect quickly; true physics needs Verlet Integration |
 | Chromatic aberration | ★★☆☆☆ | 3-4 hours | ✅ Fully feasible | Custom ShaderPass, dynamically adjusts with tension |
-| Ambient sound response | ★★★☆☆ | 1 day | ✅ Feasible | Web Audio API frequency analysis, map to visual params |
 | Full-screen exhibition mode | ★☆☆☆☆ | 1-2 hours | ✅ Fully feasible | Fullscreen API + hide UI elements |
 
 ### Future Development Possibilities (2026-01-15 Update)
@@ -328,7 +328,6 @@ Based on cost-benefit analysis and project positioning, here are potential devel
 
 | Feature | Difficulty | Est. Time | Description |
 |---------|------------|-----------|-------------|
-| **Ambient Sound Response** | ★★★☆☆ | Half day~1 day | Web Audio API spectrum analysis, makes the piece "come alive" |
 | **Hover Tooltip** | ★★★☆☆ | 3-4 hours | Raycaster ribbon selection, display real-time sentiment values |
 | **PWA Offline Support** | ★★☆☆☆ | 2-3 hours | Service Worker caching for static resources |
 
@@ -344,7 +343,7 @@ Based on cost-benefit analysis and project positioning, here are potential devel
 
 This project can evolve in two directions:
 
-- **A. Pure Art Installation** → Add Film Grain, sound response, VR immersion
+- **A. Pure Art Installation** → Add Film Grain, VR immersion
 - **B. Information Dashboard** → Add Tooltip, news ticker, more data sources
 
 Current design leans toward **A (Pure Art Installation)**. Recommend maintaining this direction.
