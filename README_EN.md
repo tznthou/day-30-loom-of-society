@@ -130,6 +130,8 @@ This project has undergone a comprehensive code review with the following key fi
 | M06 | Exponential Backoff Retry | Frontend API retry now uses exponential backoff + jitter to avoid thundering herd |
 | M07 | HTML Entities Decoding | RSS titles now properly decode `&amp;` → `&` and other special characters |
 | M08 | Background Ribbon Update Control | Changed to use `userData` for update timestamps, supporting multiple scenes |
+| L04 | Cache Wait Timeout | `waitForUpdate` reduced to 5s with warning log on timeout |
+| L05 | Frontend Error Display | Show friendly error message with WebGL hint on init failure |
 
 ### Running Tests
 

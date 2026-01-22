@@ -151,20 +151,23 @@ async function updateCacheInBackground() {
   }
 }
 
-// 等待更新完成
-function waitForUpdate() {
+// L04 修復：等待更新完成（含 timeout 警告）
+function waitForUpdate(timeout = 5000) {
   return new Promise((resolve) => {
+    const startTime = Date.now()
     const checkInterval = setInterval(() => {
       if (!cache.updating) {
         clearInterval(checkInterval)
         resolve()
+        return
+      }
+      // Timeout 檢查
+      if (Date.now() - startTime > timeout) {
+        clearInterval(checkInterval)
+        console.warn(`waitForUpdate timeout after ${timeout}ms - cache.updating stuck`)
+        resolve()
       }
     }, 100)
-    // 最多等待 10 秒
-    setTimeout(() => {
-      clearInterval(checkInterval)
-      resolve()
-    }, 10000)
   })
 }
 

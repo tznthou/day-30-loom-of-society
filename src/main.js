@@ -326,11 +326,21 @@ function setupIntro() {
     await new Promise(resolve => setTimeout(resolve, TIMING.introTransition))
 
     // 初始化場景
+    // L05 修復：改善錯誤提示，顯示具體錯誤訊息
     try {
       await init()
     } catch (error) {
       console.error('初始化失敗:', error)
-      document.getElementById('loading-text').textContent = 'Failed to initialize'
+      const loadingText = document.getElementById('loading-text')
+      loadingText.innerHTML = `
+        <div style="color: #ff6b6b;">初始化失敗</div>
+        <div style="font-size: 10px; margin-top: 10px; opacity: 0.6; max-width: 300px;">
+          ${error.message || 'Unknown error'}
+        </div>
+        <div style="font-size: 9px; margin-top: 8px; opacity: 0.4;">
+          請確認瀏覽器支援 WebGL
+        </div>
+      `
     }
 
     // 移除前導頁面

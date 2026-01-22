@@ -130,6 +130,8 @@
 | M06 | 指數退避重試 | 前端 API 重試改用指數退避 + jitter，避免 thundering herd |
 | M07 | HTML entities 解碼 | RSS 標題正確解碼 `&amp;` → `&` 等特殊字元 |
 | M08 | 背景絲帶更新控制 | 改用 `userData` 儲存更新時間，支援多場景 |
+| L04 | 快取等待 Timeout | `waitForUpdate` 縮短為 5 秒並加入 warning log |
+| L05 | 前端錯誤提示 | 初始化失敗時顯示友善錯誤訊息與 WebGL 提示 |
 
 ### 執行測試
 
