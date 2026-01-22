@@ -113,11 +113,23 @@
 | 🔴 Critical | API Timeout | 外部 API 請求 5 秒超時，防止無限等待 |
 | 🔴 Critical | 輸入驗證 | 所有資料來源加入型別檢查與 fallback |
 | 🟠 High | Memory Leak | EffectComposer 正確 dispose，避免記憶體洩漏 |
-| 🟠 High | Rate Limiting | API 限流 100 req/15min，防止濫用 |
-| 🟠 High | Caching | 5 分鐘本地快取，減少外部 API 請求 |
+| 🟠 High | Rate Limiting | API 限流 60 req/min，防止濫用 |
+| 🟠 High | Caching | 30 秒快取 + Stale-While-Revalidate 策略 |
 | 🟡 Medium | CSS 變數 | `:root` 變數系統，提升可維護性 |
 | 🟢 Low | JSDoc | 完整型別定義文檔 |
 | 🟢 Low | 單元測試 | 16 個測試案例覆蓋情緒分析模組 |
+
+### 2026-01-23 安全性更新
+
+| 問題編號 | 修復項目 | 說明 |
+|----------|---------|------|
+| H01 | qs DoS 漏洞 | 升級 qs 套件修復 CVE-2024-39306 記憶體耗盡攻擊 |
+| M01 | CORS 加強 | 生產環境 API 端點要求 Origin header |
+| M04 | HTTP 安全標頭 | 加入 `helmet` 套件（X-Frame-Options、X-Content-Type-Options 等）|
+| M05 | /api/analyze 限流 | 獨立 Rate Limit 10 req/min，防止濫用 |
+| M06 | 指數退避重試 | 前端 API 重試改用指數退避 + jitter，避免 thundering herd |
+| M07 | HTML entities 解碼 | RSS 標題正確解碼 `&amp;` → `&` 等特殊字元 |
+| M08 | 背景絲帶更新控制 | 改用 `userData` 儲存更新時間，支援多場景 |
 
 ### 執行測試
 

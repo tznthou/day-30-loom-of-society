@@ -113,11 +113,23 @@ This project has undergone a comprehensive code review with the following key fi
 | 🔴 Critical | API Timeout | 5-second timeout on external API requests |
 | 🔴 Critical | Input Validation | Type checking and fallback for all data sources |
 | 🟠 High | Memory Leak | Proper EffectComposer disposal |
-| 🟠 High | Rate Limiting | API rate limit 100 req/15min |
-| 🟠 High | Caching | 5-minute local cache to reduce external API calls |
+| 🟠 High | Rate Limiting | API rate limit 60 req/min |
+| 🟠 High | Caching | 30-second cache + Stale-While-Revalidate strategy |
 | 🟡 Medium | CSS Variables | `:root` variable system for maintainability |
 | 🟢 Low | JSDoc | Complete type definitions |
 | 🟢 Low | Unit Tests | 16 test cases covering sentiment analysis module |
+
+### 2026-01-23 Security Update
+
+| Issue ID | Fix | Description |
+|----------|-----|-------------|
+| H01 | qs DoS Vulnerability | Upgraded qs package to fix CVE-2024-39306 memory exhaustion attack |
+| M01 | CORS Hardening | Production API endpoints now require Origin header |
+| M04 | HTTP Security Headers | Added `helmet` package (X-Frame-Options, X-Content-Type-Options, etc.) |
+| M05 | /api/analyze Rate Limit | Independent rate limit of 10 req/min to prevent abuse |
+| M06 | Exponential Backoff Retry | Frontend API retry now uses exponential backoff + jitter to avoid thundering herd |
+| M07 | HTML Entities Decoding | RSS titles now properly decode `&amp;` → `&` and other special characters |
+| M08 | Background Ribbon Update Control | Changed to use `userData` for update timestamps, supporting multiple scenes |
 
 ### Running Tests
 
