@@ -3,20 +3,22 @@
  * 從後端取得即時情緒數據
  */
 
-// API 端點（開發時用 localhost，部署時改成 Zeabur URL）
-const API_BASE = import.meta.env?.VITE_API_URL || 'https://loomsc-api.zeabur.app'
+// M03：API 端點配置
+// Production fallback - 開發時可用 VITE_API_URL 環境變數覆蓋
+const PRODUCTION_API = 'https://loomsc-api.zeabur.app'
+const API_BASE = import.meta.env?.VITE_API_URL || PRODUCTION_API
 
 // 上次取得的數據（fallback 用）
 let lastSentiment = null
 
 /**
- * M05: fetch with retry - 網路暫時錯誤時自動重試
+ * M06 修復：fetch with retry - 指數退避 + jitter
  * @param {string} url
  * @param {number} maxRetries
- * @param {number} delayMs
+ * @param {number} baseDelay - 基礎延遲（毫秒）
  * @returns {Promise<Response>}
  */
-async function fetchWithRetry(url, maxRetries = 2, delayMs = 1500) {
+async function fetchWithRetry(url, maxRetries = 2, baseDelay = 1000) {
   for (let i = 0; i <= maxRetries; i++) {
     try {
       const response = await fetch(url)
@@ -27,16 +29,21 @@ async function fetchWithRetry(url, maxRetries = 2, delayMs = 1500) {
 
       // 5xx 錯誤重試，4xx 錯誤不重試
       if (response.status >= 500 && i < maxRetries) {
-        console.warn(`Retry ${i + 1}/${maxRetries} due to ${response.status}`)
-        await new Promise(resolve => setTimeout(resolve, delayMs * (i + 1)))
+        // M06：指數退避 (1s → 2s → 4s) + jitter (0-500ms)
+        const delay = baseDelay * Math.pow(2, i)
+        const jitter = Math.random() * 500
+        console.warn(`Retry ${i + 1}/${maxRetries} in ${Math.round(delay + jitter)}ms`)
+        await new Promise(resolve => setTimeout(resolve, delay + jitter))
         continue
       }
 
       throw new Error(`API error: ${response.status}`)
     } catch (error) {
       if (i < maxRetries && error.name !== 'AbortError') {
+        // M06：網路錯誤也使用指數退避
+        const delay = baseDelay * Math.pow(2, i) + Math.random() * 500
         console.warn(`Retry ${i + 1}/${maxRetries}:`, error.message)
-        await new Promise(resolve => setTimeout(resolve, delayMs * (i + 1)))
+        await new Promise(resolve => setTimeout(resolve, delay))
       } else {
         throw error
       }

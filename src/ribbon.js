@@ -258,15 +258,16 @@ export function createBackgroundRibbons() {
 // C02 平衡修復：背景絲帶降低更新頻率（遠景可接受較低 fps）
 // 原本每幀 (16ms) → 改為 50ms (20fps)，GC 壓力減少 70%
 const BG_GEOMETRY_UPDATE_INTERVAL = 50
-let lastBgUpdate = 0
 
 /**
  * 更新遠景細絲動畫
+ * M08 修復：使用 group.userData 儲存更新時間，避免模組共享狀態
  */
 export function updateBackgroundRibbons(group, time) {
-  // 降低更新頻率
-  if (time - lastBgUpdate < BG_GEOMETRY_UPDATE_INTERVAL) return
-  lastBgUpdate = time
+  // M08：改用 userData 儲存上次更新時間（支援多場景）
+  const lastUpdate = group.userData.lastBgUpdate || 0
+  if (time - lastUpdate < BG_GEOMETRY_UPDATE_INTERVAL) return
+  group.userData.lastBgUpdate = time
 
   const bg = VISUAL_CONFIG.backgroundRibbons
 

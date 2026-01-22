@@ -15,6 +15,24 @@ const TIMEOUT = 5000
 // 預編譯正則表達式（H02: 避免 ReDOS）
 const TITLE_REGEX = /<title>([^<]+)<\/title>/g
 
+// M07 修復：HTML entities 解碼
+const HTML_ENTITIES = {
+  '&amp;': '&',
+  '&lt;': '<',
+  '&gt;': '>',
+  '&quot;': '"',
+  '&#39;': "'",
+  '&apos;': "'",
+  '&nbsp;': ' '
+}
+const ENTITY_REGEX = /&[a-z0-9#]+;/gi
+
+function decodeHTMLEntities(text) {
+  return text.replace(ENTITY_REGEX, match =>
+    HTML_ENTITIES[match.toLowerCase()] || match
+  )
+}
+
 /**
  * 抓取 Google News 台灣新聞標題
  * @returns {Promise<string[]>} 新聞標題陣列
@@ -45,8 +63,10 @@ export async function fetchGoogleNewsTitles() {
       const title = match[1].trim()
       // 跳過 RSS feed 本身的標題
       if (!title.includes('Google 新聞') && !title.includes('焦點新聞')) {
-        // 移除來源標記（如 " - 聯合新聞網"）
-        const cleanTitle = title.replace(/\s*-\s*[^-]+$/, '').trim()
+        // 移除來源標記（如 " - 聯合新聞網"）並解碼 HTML entities
+        const cleanTitle = decodeHTMLEntities(
+          title.replace(/\s*-\s*[^-]+$/, '').trim()
+        )
         if (cleanTitle) {
           titles.push(cleanTitle)
         }

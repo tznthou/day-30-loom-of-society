@@ -5,6 +5,7 @@
 
 import express from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
 import { fetchMarketIndex, marketToSentiment } from './services/twse.js'
 import { analyzeText } from './services/sentiment.js'
@@ -20,42 +21,64 @@ const serverStartTime = Date.now()
 // 中間件
 // ============================================
 
-// C01 修復：CORS 白名單
+// M04 修復：HTTP 安全標頭
+app.use(helmet({
+  contentSecurityPolicy: false,        // API 不需要 CSP
+  crossOriginEmbedderPolicy: false,    // 避免干擾 CORS
+  crossOriginResourcePolicy: false     // 允許跨域資源存取
+}))
+
+app.use(express.json())
+
+// CORS 白名單
 const allowedOrigins = process.env.ALLOWED_ORIGINS
   ? process.env.ALLOWED_ORIGINS.split(',')
   : ['http://localhost:5173', 'http://localhost:3000']
 
-app.use(cors({
+// M01 修復：API 路由使用嚴格 CORS（必須有 Origin header）
+const apiCors = cors({
   origin: (origin, callback) => {
-    // 允許無 origin 的請求（curl、Postman、健康檢查、直接訪問）
-    // 這是安全的，因為沒有 Origin 的請求無法在瀏覽器發送 credentials
+    // M01：API 端點要求必須有 Origin header
     if (!origin) {
+      // 生產環境拒絕無 Origin 請求
+      if (IS_PRODUCTION) {
+        return callback(new Error('Origin header required'), false)
+      }
+      // 開發環境允許（方便 curl 測試）
       return callback(null, true)
     }
     if (allowedOrigins.includes(origin)) {
       return callback(null, true)
     }
-    // 生產環境拒絕未授權的 cross-origin 請求
     if (IS_PRODUCTION) {
       console.warn(`CORS blocked origin: ${origin}`)
-      return callback(null, false) // 返回 false 而不是 Error，避免 500
+      return callback(null, false)
     }
     // 開發環境允許所有來源
     callback(null, true)
   }
-}))
+})
 
-app.use(express.json())
-
-// C04 修復：速率限制
-const limiter = rateLimit({
+// 速率限制
+const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 分鐘
   max: 60,              // 每分鐘最多 60 次請求
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Too many requests, please try again later' }
 })
-app.use('/api', limiter)
+
+// M05 修復：/api/analyze 獨立限流（防止濫用）
+const analyzeLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,              // 每分鐘最多 10 次（比一般 API 更嚴格）
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Analyze rate limit exceeded. Please wait a moment.' }
+})
+
+// API 路由套用 CORS 和 Rate Limit
+app.use('/api', apiCors, apiLimiter)
 
 // ============================================
 // H04 修復：改良的快取策略
@@ -221,7 +244,7 @@ app.get('/api/sentiment', async (req, res) => {
 const VALID_CATEGORIES = ['tech', 'finance', 'society']
 const MAX_TEXT_LENGTH = 10000
 
-app.post('/api/analyze', (req, res) => {
+app.post('/api/analyze', analyzeLimiter, (req, res) => {
   try {
     const { text, category = 'society' } = req.body
 
